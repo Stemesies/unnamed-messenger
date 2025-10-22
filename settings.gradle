@@ -1,2 +1,4 @@
 rootProject.name = 'UntitledMessanger'
+include 'server'
+include 'sclient'
 
