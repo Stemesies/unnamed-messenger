@@ -1,13 +1,17 @@
 package elements;
 
+import java.util.ArrayList;
+
 public abstract class User {
-    private int id; // int - ?
+    protected int id; // int - ?
     private String userName;
     private String name;
     private String password;
     private int[] friends; // массив id'шников друзей
-//    public default User getUser()
+
     public abstract void sendMessage(String text);
-    public abstract void joinGroup();
+    public abstract ArrayList<Integer> joinGroup(int e); // ? extends Group
+                                            // id группы, в которую вступает пользоватль
+                                            // возвращает переданный на сервер id пользователя?
 
 }
