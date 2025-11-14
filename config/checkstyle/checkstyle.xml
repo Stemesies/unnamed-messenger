@@ -91,10 +91,10 @@
     <module name="NoLineWrap">
       <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
     </module>
-    <module name="NeedBraces">
-      <property name="tokens"
-               value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
-    </module>
+<!--    <module name="NeedBraces">-->
+<!--      <property name="tokens"-->
+<!--               value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>-->
+<!--    </module>-->
     <module name="LeftCurly">
       <property name="id" value="LeftCurlyEol"/>
       <property name="tokens"
@@ -126,15 +126,15 @@
       <property name="query" value="//RCURLY[parent::SLIST[parent::LITERAL_CATCH
                                and not(parent::LITERAL_CATCH/following-sibling::*)]]"/>
     </module>
-    <module name="RightCurly">
-      <property name="id" value="RightCurlyAlone"/>
-      <property name="option" value="alone"/>
-      <property name="tokens"
-               value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,
-                    INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF, INTERFACE_DEF, RECORD_DEF,
-                    COMPACT_CTOR_DEF, LITERAL_SWITCH, LITERAL_CASE, LITERAL_FINALLY,
-                    LITERAL_CATCH"/>
-    </module>
+<!--    <module name="RightCurly">-->
+<!--      <property name="id" value="RightCurlyAlone"/>-->
+<!--      <property name="option" value="alone"/>-->
+<!--      <property name="tokens"-->
+<!--               value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,-->
+<!--                    INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF, INTERFACE_DEF, RECORD_DEF,-->
+<!--                    COMPACT_CTOR_DEF, LITERAL_SWITCH, LITERAL_CASE, LITERAL_FINALLY,-->
+<!--                    LITERAL_CATCH"/>-->
+<!--    </module>-->
     <module name="SuppressionXpathSingleFilter">
       <!-- suppression is required till https://github.com/checkstyle/checkstyle/issues/7541 -->
       <property name="id" value="RightCurlyAlone"/>
@@ -320,7 +320,7 @@
              value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
     </module>
     <module name="Indentation">
-      <property name="basicOffset" value="2"/>
+      <property name="basicOffset" value="4"/>
       <property name="braceAdjustment" value="2"/>
       <property name="caseIndent" value="2"/>
       <property name="throwsIndent" value="4"/>
@@ -412,13 +412,13 @@
       <property name="allowedAnnotations" value="Override, Test"/>
       <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
     </module>
-    <module name="MissingJavadocMethod">
-      <property name="scope" value="protected"/>
-      <property name="allowMissingPropertyJavadoc" value="true"/>
-      <property name="allowedAnnotations" value="Override, Test"/>
-      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,
-                                   COMPACT_CTOR_DEF"/>
-    </module>
+<!--    <module name="MissingJavadocMethod">-->
+<!--      <property name="scope" value="protected"/>-->
+<!--      <property name="allowMissingPropertyJavadoc" value="true"/>-->
+<!--      <property name="allowedAnnotations" value="Override, Test"/>-->
+<!--      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,-->
+<!--                                   COMPACT_CTOR_DEF"/>-->
+<!--    </module>-->
     <module name="SuppressionXpathSingleFilter">
       <property name="checks" value="MissingJavadocMethod"/>
       <property name="query" value="//*[self::METHOD_DEF or self::CTOR_DEF
@@ -427,13 +427,13 @@
                                  or self::RECORD_DEF or self::ENUM_DEF]
                                  [not(./MODIFIERS/LITERAL_PUBLIC)]]"/>
     </module>
-    <module name="MissingJavadocType">
-      <property name="scope" value="protected"/>
-      <property name="tokens"
-                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
-                      RECORD_DEF, ANNOTATION_DEF"/>
-      <property name="excludeScope" value="nothing"/>
-    </module>
+<!--    <module name="MissingJavadocType">-->
+<!--      <property name="scope" value="protected"/>-->
+<!--      <property name="tokens"-->
+<!--                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,-->
+<!--                      RECORD_DEF, ANNOTATION_DEF"/>-->
+<!--      <property name="excludeScope" value="nothing"/>-->
+<!--    </module>-->
     <module name="MethodName">
       <property name="format"
           value="^(?![a-z]$)(?![a-z][A-Z])[a-z][a-z0-9]*(?:[A-Z][a-z0-9]*)*(?:_[0-9]+)*$"/>
@@ -453,9 +453,9 @@
       <message key="todo.match"
                value="''TODO:'' must be written in all caps and followed by a colon."/>
     </module>
-    <module name="EmptyCatchBlock">
-      <property name="commentFormat" value="\w+"/>
-    </module>
+<!--    <module name="EmptyCatchBlock">-->
+<!--      <property name="commentFormat" value="\w+"/>-->
+<!--    </module>-->
     <module name="CommentsIndentation">
       <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
     </module>

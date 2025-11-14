@@ -1,8 +1,7 @@
-import network.SimpleServerSocket;
-import network.SimpleSocket;
-
 import java.util.ArrayList;
 import java.util.Scanner;
+import network.SimpleServerSocket;
+import network.SimpleSocket;
 
 public class Server {
     SimpleServerSocket socket = null;
@@ -12,7 +11,7 @@ public class Server {
 
     public void start() {
         socket = new SimpleServerSocket(8080);
-        if(socket.isClosed())
+        if (socket.isClosed())
             return;
 
         System.out.println("Server started");
@@ -23,9 +22,9 @@ public class Server {
 
     private void acceptClients() {
         new Thread(() -> {
-            while(socket != null) {
+            while (socket != null) {
                 var client = socket.accept();
-                if(client == null)
+                if (client == null)
                     continue;
                 System.out.println("new client");
                 clients.add(client);
@@ -44,22 +43,24 @@ public class Server {
     }
 
     /**
-     * Вещает сообщение всем подключенным пользователям
+     * Вещает сообщение всем подключенным пользователям.
+     *
      * @param message сообщение для вещания
      */
     public void broadcast(String message) {
-        for(var client : clients)
+        for (var client : clients)
             client.sendMessage(message);
     }
 
     /**
-     * Вещает сообщение всем подключенным пользователям, кроме указанного
+     * Вещает сообщение всем подключенным пользователям, кроме указанного.
+     *
      * @param message сообщение для вещания
      * @param excludedClient клиент, которому не следует присылать сообщение
      */
     public void broadcast(String message, SimpleSocket excludedClient) {
-        for(var client : clients)
-            if(!client.equals(excludedClient))
+        for (var client : clients)
+            if (!client.equals(excludedClient))
                 client.sendMessage(message);
     }
 
@@ -72,7 +73,7 @@ public class Server {
         new Thread(() -> {
             System.out.printf("Client %s connected\n", client);
 
-            while(client.hasNewMessage()) {
+            while (client.hasNewMessage()) {
                 var line = client.receiveMessage();
                 var chatMessage = Utils.createChatMessage(client, line);
 
@@ -95,7 +96,7 @@ public class Server {
             }
             var msg = in.nextLine();
 
-            if(msg.equals("/exit")) {
+            if (msg.equals("/exit")) {
                 stop();
                 return;
             }

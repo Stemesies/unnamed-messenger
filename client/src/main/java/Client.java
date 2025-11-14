@@ -1,6 +1,5 @@
-import network.SimpleSocket;
-
 import java.util.Scanner;
+import network.SimpleSocket;
 
 public class Client {
 
@@ -18,10 +17,10 @@ public class Client {
     boolean isConnected() {
         return socket != null;
     }
+
     boolean isDisconnected() {
         return socket == null;
     }
-
 
     /**
      * Создает, если это возможно, соединение с сервером и начинает прослушивать сообщения.
@@ -63,15 +62,15 @@ public class Client {
             }
             var msg = in.nextLine();
 
-            if(msg.equals("/retry") && isDisconnected()) {
+            if (msg.equals("/retry") && isDisconnected()) {
                 connect();
                 continue;
-            } else if(msg.equals("/exit")) {
+            } else if (msg.equals("/exit")) {
                 exit();
                 return;
             }
 
-            if(isConnected())
+            if (isConnected())
                 socket.sendMessage(msg);
             else
                 System.err.println("Not connected to server.");
@@ -79,7 +78,7 @@ public class Client {
     }
 
     private void processConnection() {
-        new Thread(()->{
+        new Thread(() -> {
             while (isConnected()) {
                 if (socket.hasNewMessage())
                     System.out.println(socket.receiveMessage());
