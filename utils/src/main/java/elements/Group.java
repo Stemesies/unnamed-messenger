@@ -1,7 +1,6 @@
 package elements;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public abstract class Group {
     private int id;
@@ -12,9 +11,9 @@ public abstract class Group {
     protected ArrayList<Integer> members;
 //    protected LinkedList<Integer> members;
 
-    private int[] admins;
+    private ArrayList<Integer> admins;
     private int owner;
-    private int[] messages; // id-s сообщений группы
+    private ArrayList<Integer> messages; // id-s сообщений группы
 
     public int getIdGroup() {
         return this.id;

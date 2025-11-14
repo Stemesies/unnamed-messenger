@@ -2,7 +2,6 @@ package elements;
 
 import managers.FriendManager;
 import managers.JoinManager;
-import managers.Manager;
 import managers.RegisterManager;
 
 import java.util.ArrayList;
