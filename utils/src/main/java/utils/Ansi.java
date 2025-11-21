@@ -1,3 +1,5 @@
+package utils;
+
 /**
  * Небольшая библиотека, позволяющая стилизовать вывод программы.
  *
@@ -17,7 +19,7 @@
  *
  * <br>Пример использования:<br>
  * <pre><code>
- *     println("amongus! " + Ansi.applyStyle("i'm sus", Ansi.Colors.RED) + " no u")
+ *     println("amongus! " + utils.Ansi.applyStyle("i'm sus", utils.Ansi.Colors.RED) + " no u")
  * </code></pre><br>
  * Конечный результат:<br>
  * amongus! <span style="color:#ff0000;">i'm sus</span> no u
