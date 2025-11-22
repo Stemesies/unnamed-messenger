@@ -2,21 +2,32 @@ package cli;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.MatchResult;
 
 public class CommandTokenizer {
 
-    /**
-     * Убирает экраны.
-     * <br>Мне сказать больше нечего.
-     */
-    private static String processToken(String token) {
-        if (token.charAt(0) == '"')
+    private static Token processToken(MatchResult result) {
+        var token = result.group(1);
+
+        if (token == null)
+            return null;
+
+        var isArgument = token.charAt(0) == '"';
+        if (isArgument)
             token = token.substring(1, token.length() - 1);
 
+        return new Token(
+            removeEscapeMetasymbols(token),
+            result.start(1),
+            result.end(1),
+            isArgument
+        );
+    }
+
+    private static String removeEscapeMetasymbols(String token) {
         StringBuilder stringBuilder = new StringBuilder();
         boolean isEscaped = false;
 
-        // Убираем экранные мета-символы
         for (int i = 0; i < token.length(); i++) {
             char c = token.charAt(i);
             if (c == '\\') {
@@ -27,12 +38,11 @@ public class CommandTokenizer {
                 }
                 isEscaped = true;
                 continue;
-            } else if (isEscaped)
+            }
+            if (isEscaped)
                 isEscaped = false;
             stringBuilder.append(c);
         }
-
-
         return stringBuilder.toString();
     }
 
@@ -52,13 +62,13 @@ public class CommandTokenizer {
      * @param input Сырая команда
      * @return Список токенов
      */
-    public static List<String> tokenize(String input) {
+    public static List<Token> tokenize(String input) {
         return CommandProcessor.pattern
             .matcher(input)
             .results()
-            .map((it) -> it.group(1))
-            .filter(Objects::nonNull)
             .map(CommandTokenizer::processToken)
+            .filter(Objects::nonNull)
             .toList();
     }
+
 }

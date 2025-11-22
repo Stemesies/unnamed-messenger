@@ -14,17 +14,17 @@ public class CommandValidator {
      * </ul>
      *
      * <br>По завершении, если команда была отсеяна, программа составляет экземпляр
-     * исключения {@link IllegalCommandException}. В него записывается что именно пошло не так
-     * (Получить информацию можно через {@link IllegalCommandException#explain()}).
+     * исключения {@link IllegalCommandResult}. В него записывается что именно пошло не так
+     * (Получить информацию можно через {@link IllegalCommandResult#explain()}).
      * Данное сообщение пригодно для показа пользователю.
      *
      * @param command Команда для проверки
-     * @return {@link IllegalCommandException}, если команда не прошла проверку
+     * @return {@link IllegalCommandResult}, если команда не прошла проверку
      *     <br><code>null</code> иначе.
      */
-    public static IllegalCommandException validate(String command) {
+    public static IllegalCommandResult validate(String command) {
         if (command.isEmpty())
-            return new IllegalCommandException("Command is empty.", command, 0, 0);
+            return new IllegalCommandResult("Command is empty.", command, 0, 0);
 
         var parserOutput = CommandProcessor.pattern
             .matcher(command)
@@ -37,29 +37,28 @@ public class CommandValidator {
             String delimiter = it.group(2);
             if (delimiter == null)
                 continue;
-            System.out.println("Delimiter: \"" + delimiter + "\"");
 
             if (delimiter.isEmpty()) {
                 if (i == parserOutput.size() - 1)
                     return null;
                 else {
-                    return new IllegalCommandException("No separation found:",
+                    return new IllegalCommandResult("No separation found:",
                         command, it.start(2) - 1, it.end(2) + 1);
                 }
             }
 
             if (delimiter.charAt(0) == '"') {
-                return new IllegalCommandException("Unclosed quoted argument:",
+                return new IllegalCommandResult("Unclosed quoted argument:",
                     command, it.start(2) - 1, it.end(2));
             }
 
             if (delimiter.charAt(0) != ' ') {
-                return new IllegalCommandException("Invalid symbol:",
+                return new IllegalCommandResult("Invalid symbol:",
                     command, it.start(2) - 1, it.end(2));
             }
 
             if (delimiter.length() > 1) {
-                return new IllegalCommandException(
+                return new IllegalCommandResult(
                     "Invalid amount of symbols and/or invalid symbols:",
                     command, it.start(2), it.end(2)
                 );

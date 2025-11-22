@@ -92,13 +92,13 @@ public class Client {
     private void registerCommands() {
         commandProcessor.registerCommand(
                 new Command.Builder("exit")
-                        .run(this::exit)
+                        .executes(this::exit)
                         .build()
         );
         commandProcessor.registerCommand(
                 new Command.Builder("retry")
                         .require(this::isDisconnected)
-                        .run(this::connect)
+                        .executes(this::connect)
                         .build()
         );
 
