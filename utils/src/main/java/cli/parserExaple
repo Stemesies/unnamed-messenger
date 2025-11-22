@@ -1,0 +1,17 @@
+new CommandBuilder("group")
+	.subcommand("create", (it) -> {
+		it.requireArgument("groupName", String.java)
+			.run(() -> {
+				Groups.add(new Group(groupName));
+			})
+	})
+	.subcommand("remove", (it) -> {
+		it.requireArgument("groupName", String.java)
+			.run(() -> {
+				Groups.remove(Groups.get(groupName));
+			})
+	}
+.build();
+
+/groups create <groupName>
+/groups remove <groupName>
