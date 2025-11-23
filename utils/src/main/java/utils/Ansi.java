@@ -68,6 +68,19 @@ public class Ansi {
     }
 
     /**
+     * Стилизует указанный текст, по завершении которого стиль сбрасывается.
+     */
+    public static String applyStyle(Object string, Ansi... styles) {
+        StringBuilder result = new StringBuilder();
+        for (Ansi style : styles) {
+            result.append(style);
+        }
+        result.append(string);
+        result.append(Modes.RESET);
+        return result.toString();
+    }
+
+    /**
      * Убирает последний написанный в консоли символ.
      * <br>
      * <br>Встроенная консоль Intelij IDEA не поддерживает эту функцию.
