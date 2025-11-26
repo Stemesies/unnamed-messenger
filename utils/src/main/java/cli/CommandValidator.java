@@ -1,5 +1,11 @@
 package cli;
 
+import static cli.CommandResults.EMPTY_COMMAND;
+import static cli.CommandResults.INVALID_SEPARATOR_SIZE;
+import static cli.CommandResults.INVALID_SYMBOL;
+import static cli.CommandResults.NO_SEPARATION;
+import static cli.CommandResults.UNCLOSED_QUOTE;
+
 public class CommandValidator {
 
     /**
@@ -14,17 +20,17 @@ public class CommandValidator {
      * </ul>
      *
      * <br>По завершении, если команда была отсеяна, программа составляет экземпляр
-     * исключения {@link IllegalCommandResult}. В него записывается что именно пошло не так
-     * (Получить информацию можно через {@link IllegalCommandResult#explain()}).
+     * исключения {@link CommandResult}. В него записывается что именно пошло не так
+     * (Получить информацию можно через {@link CommandResult#explain()}).
      * Данное сообщение пригодно для показа пользователю.
      *
      * @param command Команда для проверки
-     * @return {@link IllegalCommandResult}, если команда не прошла проверку
+     * @return {@link CommandResult}, если команда не прошла проверку
      *     <br><code>null</code> иначе.
      */
-    public static IllegalCommandResult validate(String command) {
+    public static CommandResult validate(String command) {
         if (command.isEmpty())
-            return new IllegalCommandResult("Command is empty.", command, 0, 0);
+            return new CommandResult(EMPTY_COMMAND, command, 0, 0);
 
         var parserOutput = CommandProcessor.pattern
             .matcher(command)
@@ -42,24 +48,23 @@ public class CommandValidator {
                 if (i == parserOutput.size() - 1)
                     return null;
                 else {
-                    return new IllegalCommandResult("No separation found:",
+                    return new CommandResult(NO_SEPARATION,
                         command, it.start(2) - 1, it.end(2) + 1);
                 }
             }
 
             if (delimiter.charAt(0) == '"') {
-                return new IllegalCommandResult("Unclosed quoted argument:",
+                return new CommandResult(UNCLOSED_QUOTE,
                     command, it.start(2) - 1, it.end(2));
             }
 
             if (delimiter.charAt(0) != ' ') {
-                return new IllegalCommandResult("Invalid symbol:",
+                return new CommandResult(INVALID_SYMBOL,
                     command, it.start(2) - 1, it.end(2));
             }
 
             if (delimiter.length() > 1) {
-                return new IllegalCommandResult(
-                    "Invalid amount of symbols and/or invalid symbols:",
+                return new CommandResult(INVALID_SEPARATOR_SIZE,
                     command, it.start(2), it.end(2)
                 );
             }

@@ -1,7 +1,8 @@
-import java.util.Scanner;
-import network.SimpleSocket;
 import cli.Command;
 import cli.CommandProcessor;
+import network.SimpleSocket;
+
+import java.util.Scanner;
 
 public class Client {
 
@@ -66,8 +67,13 @@ public class Client {
             }
             var msg = in.nextLine();
 
-            if (commandProcessor.processCommand(msg))
+            if (msg.charAt(0) == '/') {
+                var procError = commandProcessor.execute(msg);
+                if (procError != null)
+                    procError.explain();
+
                 continue;
+            }
 
             if (isConnected())
                 socket.sendMessage(msg);
@@ -90,16 +96,12 @@ public class Client {
     }
 
     private void registerCommands() {
-        commandProcessor.registerCommand(
-                new Command.Builder("exit")
-                        .executes(this::exit)
-                        .build()
+        commandProcessor.register("exit", (it) -> it
+            .executes(this::exit)
         );
-        commandProcessor.registerCommand(
-                new Command.Builder("retry")
-                        .require(this::isDisconnected)
-                        .executes(this::connect)
-                        .build()
+        commandProcessor.register("retry", (it) -> it
+            .require(this::isDisconnected)
+            .executes(this::connect)
         );
 
     }

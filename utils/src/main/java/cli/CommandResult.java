@@ -2,25 +2,34 @@ package cli;
 
 import utils.Ansi;
 
-public class IllegalCommandResult {
+public class CommandResult {
+
     public final String message;
-    public final String type;
+    public final CommandResults type;
     public final int start;
     public final int end;
 
-    public IllegalCommandResult(String msg, String command, int start, int end) {
-        type = msg;
-        message = highlightError(msg, command, start, end);
+    CommandResult(CommandResults type, String command, int start, int end, Object... args) {
+        this.type = type;
         this.start = start;
         this.end = end;
+
+        message = highlightError(
+            type.getMessage()
+                .formatted(args),
+            command,
+            start,
+            end
+        );
+
     }
 
-    public IllegalCommandResult(String msg, String command, Token token) {
-        this(msg, command, token.start(), token.end());
+    public CommandResult(CommandResults type, String command, Token token, Object... args) {
+        this(type, command, token.start(), token.end(), args);
     }
 
-    public IllegalCommandResult(String msg, Command.Context context) {
-        this(msg, context.command, context.currentToken());
+    public CommandResult(CommandResults type, Command.Context context, Object... args) {
+        this(type, context.command, context.currentToken(), args);
     }
 
     private static String highlightError(String msg, String command, int start, int end) {

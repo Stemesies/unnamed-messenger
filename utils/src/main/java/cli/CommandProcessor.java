@@ -1,67 +1,95 @@
 package cli;
 
-import utils.Apply;
+import utils.kt.Also;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class CommandProcessor {
-    private IllegalCommandResult lastError = null;
+import static cli.CommandResults.COMMAND_NOT_FOUND;
+import static cli.CommandResults.NOT_A_COMMAND;
 
-    ArrayList<Command> commands = new ArrayList<>();
+public class CommandProcessor {
+
+    private CommandResult lastError = null;
+    private final ArrayList<Command> registeredCommands = new ArrayList<>();
+
     static final Pattern pattern = Pattern.compile(
         "^/|(\\w+|\"\"|\".*?(?:(?<=[^\\\\])(?:\\\\\\\\)+|[^\\\\])\")"
             + "|"
             + "([^\"^[:alnum]]+?(?=\\w|\"|$)|\".*)"
     );
 
-    public void registerCommand(Command command) {
-        commands.add(command);
+    /**
+     * Возвращает ошибку при прошлой обработке команды. Значение обновляется по завершении
+     * исполнения команды, во время возврата функции {@link #executeAndExplain(String)}.
+     *
+     * @return <code>IllegalCommandResult</code>, если предыдущий вызов
+     *     {@link #executeAndExplain(String)} завершился неудачей
+     *     <br><code>null</code>, если все прошло успешно
+     */
+    public CommandResult getLastError() {
+        return lastError;
     }
 
-    public void registerCommand(String command, Apply<Command.Builder> action) {
+    // ---------------------------------
+
+    public void register(Command command) {
+        registeredCommands.add(command);
+    }
+
+    public void register(String command, Also<Command.Builder> action)
+        throws IllegalStateException {
+
         var c = Command.create(command);
         action.run(c);
-        commands.add(c.build());
-
+        registeredCommands.add(c.build());
     }
 
-    public boolean processCommand(String input) {
-        if (input.charAt(0) != '/')
-            return false; // Possibly is not command.
+    /**
+     * Исполняет команду. При неудаче выводит сообщение об ошибке.
+     * <br>При ошибке вы можете получить информацию с помощью
+     * {@link CommandProcessor#getLastError()}.
+     *
+     * @return true, если команда была успешно выполнена.
+     *     <br>false, если возникла ошибка
+     */
+    public boolean executeAndExplain(String input) {
+        var result = execute(input);
 
-        var validatorResult = CommandValidator.validate(input);
-        if (validatorResult != null) {
-            validatorResult.explain();
-            return true;
+        if (result != null) {
+            lastError = result;
+            result.explain();
+            return false;
         }
-
-        List<Token> tokens = CommandTokenizer.tokenize(input);
-
-        for (var command : commands) {
-            if (command.baseCommand.equals(tokens.getFirst().content())) {
-                lastError = command.execute(new Command.Context(tokens, input, "", ""));
-
-                if (lastError != null)
-                    lastError.explain();
-
-                return true;
-            }
-        }
-
-        lastError = new IllegalCommandResult(
-            "Command not found.",
-            input,
-            tokens.getFirst().start(),
-            tokens.getFirst().end()
-        );
-        lastError.explain();
 
         return true;
     }
 
-    public IllegalCommandResult getLastError() {
-        return lastError;
+    /**
+     * Исполняет команду.
+     * <br>При ошибке вы можете получить информацию с помощью
+     * {@link CommandProcessor#getLastError()}.
+     *
+     * @return true, если команда была успешно выполнена.
+     *     <br>false, если возникла ошибка
+     */
+    public CommandResult execute(String input) {
+        if (input.charAt(0) != '/')
+            return new CommandResult(NOT_A_COMMAND, input, 0, input.length());
+
+        var validatorError = CommandValidator.validate(input);
+        if (validatorError != null)
+            return validatorError;
+
+        List<Token> tokens = CommandTokenizer.tokenize(input);
+        var firstToken = tokens.getFirst();
+
+        for (var command : registeredCommands)
+            if (command.is(firstToken))
+                return command.execute(new Command.Context(tokens, input, "", ""));
+
+        return new CommandResult(COMMAND_NOT_FOUND, input, firstToken);
     }
+
 }

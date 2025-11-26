@@ -1,17 +1,39 @@
-new CommandBuilder("group")
-	.subcommand("create", (it) -> {
-		it.requireArgument("groupName", String.java)
-			.run(() -> {
+// --------------------------------------------------
+Command.create("group")
+	.subcommand("create", (it1) -> it1
+		.requireArgument("groupName", String.java)
+			.executes(() -> {
 				Groups.add(new Group(groupName));
 			})
-	})
-	.subcommand("remove", (it) -> {
+	)
+	.subcommand("remove", (it1) -> it1
 		it.requireArgument("groupName", String.java)
-			.run(() -> {
+			.executes(() -> {
 				Groups.remove(Groups.get(groupName));
 			})
-	}
+	)
+
 .build();
+// --------------------------------------------------
+
+или
+
+// --------------------------------------------------
+processor.register("group", (it) -> it
+	.subcommand("create", (it1) -> it1
+		.requireArgument("groupName", String.java)
+			.executes(() -> {
+				Groups.add(new Group(groupName));
+			})
+	)
+	.subcommand("remove", (it1) -> it1
+		it.requireArgument("groupName", String.java)
+			.executes(() -> {
+				Groups.remove(Groups.get(groupName));
+			})
+	)
+// --------------------------------------------------
+
 
 /groups create <groupName>
 /groups remove <groupName>

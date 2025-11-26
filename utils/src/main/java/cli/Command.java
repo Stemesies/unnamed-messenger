@@ -1,15 +1,22 @@
 package cli;
 
-import utils.Apply;
+import utils.kt.Apply;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static cli.CommandResults.CONDITIONS_NOT_MET;
+import static cli.CommandResults.FURTHER_SUBCOMMANDS_EXPECTED;
+import static cli.CommandResults.INVALID_SUBCOMMAND;
+import static cli.CommandResults.INVALID_TOKEN;
+import static cli.CommandResults.MISSING_REQUIRED_ARGUMENT;
+import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
+
 public class Command {
 
-    final String baseCommand;
+    final String base;
     private final List<Command> subcommands;
     private final List<Argument> arguments;
 
@@ -17,100 +24,122 @@ public class Command {
     final Condition condition;
 
     private Command(
-        String baseCommand,
+        String base,
         List<Command> subcommands,
         List<Argument> arguments,
         Apply<Context> action,
         Condition condition
     ) {
-        this.baseCommand = baseCommand;
+        this.base = base;
         this.subcommands = subcommands;
         this.arguments = arguments;
         this.action = action;
         this.condition = condition;
     }
 
+    public boolean is(Token token) {
+        return base.equals(token.content());
+    }
+
     public static Builder create(String baseCommand) {
         return new Builder(baseCommand);
     }
 
-    private IllegalCommandResult consumeArguments(Context context, int limit) {
-        context.position++;
+    /**
+     * "Поглощает" все заданные аргументы, пока не дойдет до установленного лимита.
+     * Все поглощенные аргументы заносятся в контекстный словарь.
+     *
+     * @param limit позиция, до которой следует поглощать аргументы.
+     *              В основном это начало следующей суб-команды, либо конец строки.
+     *              <br><b>[Включительно.]</b>
+     *
+     * @return CommandResult, если был пропущен необходимый для заполнения аргумент.
+     *
+     * @see Command.Builder#requireArgument(String)
+     * @see Command.Builder#findArgument(String)
+     */
+    private CommandResult consumeArguments(Context context, int limit) {
+        context.position++; // Переходим на позицию первого аргумента
+
         for (var argument : arguments) {
 
-            if (context.position > limit) {
-                // Мы дошли до следующий суб-команды
-                if (!argument.isOptional) {
-
-                    // Не все необходимые аргументы были введены
-                    return new IllegalCommandResult(
-                        "Missing required argument \"" + argument.name + "\".",
-                        context.command,
-                        context.token(context.position - 1).end(),
-                        context.currentToken() == null
-                            ? context.command.length() + 10
-                            : context.currentToken().end()
-                    );
-                }
-                return null;
+            if (context.position < limit) {
+                context.arguments.put(argument.name, context.consumeToken());
+                continue;
             }
 
-            context.arguments.put(argument.name, context.consumeToken());
+            // Мы дошли до следующей суб-команды (ака до лимита)
+
+            // Если пропущен опциональный аргумент - игнорируем и идем дальше
+            if (argument.isOptional)
+                return null;
+
+            return new CommandResult(MISSING_REQUIRED_ARGUMENT,
+                context.command,
+                context.getToken(context.position - 1).end(),
+                context.currentToken() == null
+                    ? context.command.length() + 10
+                    : context.currentToken().end(),
+                argument.name
+            );
+
         }
         return null;
     }
 
-    public IllegalCommandResult execute(Context context) {
+    public CommandResult execute(Context context) {
         var token = context.currentToken();
         if (token == null)
             throw new NullPointerException("Null token. Position %d. Available [0;%d)."
                 .formatted(context.tokens.size(), context.position)
             );
 
-        if (!token.is(baseCommand))
-            return new IllegalCommandResult("Invalid token:", context);
+        if (!token.is(base))
+            return new CommandResult(INVALID_TOKEN, context);
 
+        if (condition != null && !condition.check())
+            return new CommandResult(CONDITIONS_NOT_MET, context);
 
         // Ищем позицию, на которой располагается следующая суб-команда:
-        var subcommandPos = context.position;
+        var nextSubcommand = context.position + 1;
         Command foundSubcommand = null;
-        while (context.tokens.size() > ++subcommandPos) {
+
+        out: while (context.tokens.size() > nextSubcommand) {
             for (var subcommand : subcommands) {
-                if (context.token(subcommandPos).isFunctional(subcommand.baseCommand)) {
+                var sbToken = context.getToken(nextSubcommand);
+                if (sbToken.is(subcommand.base) && sbToken.isFunctional()) {
                     foundSubcommand = subcommand;
-                    break;
+                    break out;
                 }
             }
+            nextSubcommand++;
         }
+
 
         // Смотрим и забираем все аргументы, следующие перед найденной суб-командой
-        var argumentConsumptionResult = consumeArguments(context, subcommandPos - 2);
-        if (argumentConsumptionResult != null)
-            return argumentConsumptionResult;
+        var argConsumptionResult = consumeArguments(context, nextSubcommand);
+        if (argConsumptionResult != null)
+            return argConsumptionResult;
 
-        if (foundSubcommand != null) {
+        // Нет смысла продолжать обрабатывать текущую команду; Переходим к следующей.
+        if (foundSubcommand != null)
             return foundSubcommand.execute(context);
-        }
 
-        if (action == null) {
+        if (action != null) {
+
             if (context.currentToken() != null)
-                return new IllegalCommandResult(
-                    "Invalid subcommand.",
-                    context
-                );
+                return new CommandResult(UNKNOWN_SUBCOMMAND, context);
 
-            var lastToken = context.currentToken();
-            return new IllegalCommandResult(
-                "Further subcommands expected.",
-                context.command,
-                lastToken == null ? context.command.length() : lastToken.end(),
-                context.command.length() + 10
-            );
+            action.run(context);
+            return null;
         }
 
-        action.run(context);
+        var lastToken = context.currentToken();
+        if (lastToken != null)
+            return new CommandResult(INVALID_SUBCOMMAND, context);
 
-        return null;
+        var end = context.command.length();
+        return new CommandResult(FURTHER_SUBCOMMANDS_EXPECTED, context.command, end, end + 10);
 
     }
 
@@ -133,7 +162,7 @@ public class Command {
             this.group = group;
         }
 
-        Token token(int index) {
+        Token getToken(int index) {
             if (position > tokens.size())
                 return null;
             return tokens.get(index);
@@ -146,7 +175,7 @@ public class Command {
         }
 
         Token consumeToken() {
-            return token(position++);
+            return getToken(position++);
         }
 
         public boolean hasArgument(String argumentName) {
@@ -199,7 +228,7 @@ public class Command {
          *
          * @param condition условие прохода
          */
-        public Builder require(Command.Condition condition) {
+        public Builder require(Condition condition) {
             this.condition = condition;
             return this;
         }
@@ -210,11 +239,20 @@ public class Command {
          * <br>
          * <br>Пример:
          * <pre><code>
-         * (...).subcommand("invite").requireArgument(username)
-         *
-         * /groups invite Flory (Выполнение успешно)
-         *
-         * Отсутствует поле
+         * proc.registerCommand("groups", (it)->it
+         *     .subcommand("invite" (it1)->it1
+         *         .requireArgument(username)
+         *         .executes(()->{})
+         *      )
+         * );
+         * </code></pre>
+         * <pre><code>
+         * > /groups invite Flory
+         * (Выполнение успешно)
+         * </code></pre>
+         * <pre><code>
+         * > /groups invite
+         * Missing required argument <username>."
          * /groups invite________
          *               ^^^^^^^^
          * </code></pre>
@@ -232,6 +270,11 @@ public class Command {
 
         public Builder findArgument(String name) {
             arguments.add(new Argument(name, true));
+            return this;
+        }
+
+        public Builder subcommand(Builder builder) {
+            subcommands.add(builder);
             return this;
         }
 
