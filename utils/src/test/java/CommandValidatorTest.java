@@ -1,14 +1,27 @@
+import cli.CommandResults;
 import cli.CommandValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import utils.Ansi;
+
+import static cli.CommandResults.INVALID_SEPARATOR;
+import static cli.CommandResults.NO_SEPARATION;
+import static cli.CommandResults.UNCLOSED_QUOTE;
+import static cli.CommandResults.UNEXPECTED_SYMBOL;
 
 public class CommandValidatorTest {
 
     boolean test(String command) {
-        System.out.println("Testing:\n" + command);
+        System.out.println(
+            Ansi.applyStyle(
+                "\nValidating command: " + command,
+                Ansi.Colors.fromRgb(217, 76, 118)
+            )
+        );
+
         var result = CommandValidator.validate(command);
-        if(result == null) {
-            System.out.println();
+        if (result == null) {
+            System.out.println("Command is valid.");
             return true;
         }
         result.explain();
@@ -16,30 +29,51 @@ public class CommandValidatorTest {
         return false;
     }
 
+    void assertError(String command, CommandResults type, int begin, int end) {
+        System.out.println(
+            Ansi.applyStyle(
+                "\nValidating command: " + command,
+                Ansi.Colors.fromRgb(217, 76, 118)
+            )
+        );
+        var result = CommandValidator.validate(command);
+        Assertions.assertNotNull(result);
+        result.explain();
+        Assertions.assertEquals(type, result.type);
+        Assertions.assertEquals(begin, result.start);
+        Assertions.assertEquals(end, result.end);
+    }
+
     @Test
     public void successfulCommand() {
         Assertions.assertTrue(
-                test("/groups create groupId \"Группа для тех, кто любит самые смачные...\" ")
+            test("/groups create groupId \"Группа для тех, кто любит самые смачные...\" ")
         );
     }
 
     @Test
     public void emptyQuotes() {
-        Assertions.assertTrue(
-            test("/when the impostor is \"\"")
-        );
+        Assertions.assertTrue(test("/when the impostor is \"\""));
+        Assertions.assertTrue(test("/when \"\" \"\" \"\""));
     }
 
     @Test
-    public void unsuccessfulCommand_escapedQuotes() {
+    public void noSeparation() {
+        assertError("/uwu \"amogus\"\"uwu\"", NO_SEPARATION, 13, 18);
+        assertError("/uwu \"\"\"\"", NO_SEPARATION, 7, 9);
+    }
+
+    @Test
+    public void successfulCommand_escapedQuotes() {
         // " ... мессенджер \"MAX\" "
         Assertions.assertTrue(
-            test("/broadcast \"ВНИМАНИЕ! Зачем вы здесь находитесь? Есть же прекрасный мессенджер \\\"MAX\\\"\" ")
+            test("/broadcast \"ВНИМАНИЕ! Зачем вы здесь находитесь? " +
+                "Есть же прекрасный мессенджер \\\"MAX\\\"\" ")
         );
     }
 
     @Test
-    public void unsuccessfulCommand_escapedEscapedQuotes() {
+    public void successfulCommand_escapedEscapedQuotes() {
         Assertions.assertTrue(
             //                             /broadcast    "       \"MAX\"       иди знаешь куда    "
             //             /broadcast  " - /broadcast   \"     \\\"MAX\\\"     иди знаешь куда   \"  - "
@@ -49,58 +83,38 @@ public class CommandValidatorTest {
 
     @Test
     public void largeGapBetweenTokens() {
-        var result = CommandValidator.validate("/uwu  owo");
-        Assertions.assertNotNull(result);
-        result.explain();
-
-        Assertions.assertEquals(5, result.start);
-        Assertions.assertEquals(6, result.end);
+        assertError("/uwu  owo", UNEXPECTED_SYMBOL, 5, 6);
     }
 
     @Test
     public void illegalSeparator() {
-        var result = CommandValidator.validate("/uwu<owo>");
-        Assertions.assertNotNull(result);
-        result.explain();
+        assertError("/uwu<owo>", INVALID_SEPARATOR, 4, 5);
 
-        Assertions.assertEquals(4, result.start);
-        Assertions.assertEquals(5, result.end);
+        assertError("/uwu \\\"owo uwu", UNEXPECTED_SYMBOL, 5, 6);
     }
 
     @Test
     public void illegalWrapping() {
-        var result = CommandValidator.validate("/uwu <owo>");
-        Assertions.assertNotNull(result);
-        result.explain();
-
-        Assertions.assertEquals(5, result.start);
-        Assertions.assertEquals(6, result.end);
+        assertError("/uwu <owo>", UNEXPECTED_SYMBOL, 5, 6);
     }
 
     @Test
     public void unfinishedQuotes() {
-        var result = CommandValidator.validate("/uwu \"<owo>");
-        Assertions.assertNotNull(result);
-        result.explain();
+        assertError("/uwu \"<owo>", UNCLOSED_QUOTE, 5, 11);
 
-        Assertions.assertEquals(5, result.start);
-        Assertions.assertEquals(11, result.end);
+        assertError("/uwu \" <owo>", UNCLOSED_QUOTE, 5, 12);
 
-        var result2 = CommandValidator.validate("/uwu \" <owo>");
-        Assertions.assertNotNull(result2);
-        result2.explain();
-
-        Assertions.assertEquals(5, result2.start);
-        Assertions.assertEquals(12, result2.end);
+        assertError("/uwu \" <owo> uwu _v_", UNCLOSED_QUOTE, 5, 20);
     }
 
     @Test
     public void unfinishedQuotes_withEscapedQuotes() {
-        var result = CommandValidator.validate("/uwu \"<owo>\\\"");
-        Assertions.assertNotNull(result);
-        result.explain();
+        assertError("/uwu \"<owo>\\\"", UNCLOSED_QUOTE, 5, 13);
 
-        Assertions.assertEquals(5, result.start);
-        Assertions.assertEquals(13, result.end);
+        Assertions.assertTrue(test("/uwu \"<owo>\\\\\""));
+
+        assertError("/uwu \"<owo>\\\\\\\"", UNCLOSED_QUOTE, 5, 15);
+
+        Assertions.assertTrue(test("/uwu \"<owo>\\\\\\\\\""));
     }
 }

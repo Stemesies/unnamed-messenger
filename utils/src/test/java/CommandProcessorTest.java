@@ -8,9 +8,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static cli.CommandResults.COMMAND_NOT_FOUND;
 import static cli.CommandResults.FURTHER_SUBCOMMANDS_EXPECTED;
-import static cli.CommandResults.INVALID_SEPARATOR_SIZE;
 import static cli.CommandResults.INVALID_SUBCOMMAND;
 import static cli.CommandResults.MISSING_REQUIRED_ARGUMENT;
+import static cli.CommandResults.UNEXPECTED_SYMBOL;
 import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
 
 public class CommandProcessorTest {
@@ -242,7 +242,7 @@ public class CommandProcessorTest {
         Assertions.assertEquals("invited Товарищ майор", result.get());
 
         Assertions.assertFalse(execute(processor, "/invite Товарищ майор"));
-        Assertions.assertEquals(INVALID_SEPARATOR_SIZE, processor.getLastError().type);
+        Assertions.assertEquals(UNEXPECTED_SYMBOL, processor.getLastError().type);
 
         Assertions.assertFalse(execute(processor, "/invite Comrade mayor"));
         Assertions.assertEquals(UNKNOWN_SUBCOMMAND, processor.getLastError().type);

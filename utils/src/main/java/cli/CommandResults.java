@@ -6,8 +6,8 @@ public enum CommandResults {
     EMPTY_COMMAND("Command is empty."),
     NO_SEPARATION("No separation found."),
     UNCLOSED_QUOTE("Unclosed quoted argument."),
-    INVALID_SYMBOL("Invalid symbol."),
-    INVALID_SEPARATOR_SIZE("Invalid amount of symbols and/or invalid symbols:"),
+    INVALID_SEPARATOR("Invalid symbol."),
+    UNEXPECTED_SYMBOL("Unexpected symbol or symbols."),
 
     // Processor
     INVALID_TOKEN("Invalid token."),

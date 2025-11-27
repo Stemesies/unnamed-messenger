@@ -1,10 +1,10 @@
 package cli;
 
 import static cli.CommandResults.EMPTY_COMMAND;
-import static cli.CommandResults.INVALID_SEPARATOR_SIZE;
-import static cli.CommandResults.INVALID_SYMBOL;
+import static cli.CommandResults.INVALID_SEPARATOR;
 import static cli.CommandResults.NO_SEPARATION;
 import static cli.CommandResults.UNCLOSED_QUOTE;
+import static cli.CommandResults.UNEXPECTED_SYMBOL;
 
 public class CommandValidator {
 
@@ -39,36 +39,53 @@ public class CommandValidator {
 
         for (int i = 0; i < parserOutput.size(); i++) {
             var it = parserOutput.get(i);
-
             String delimiter = it.group(2);
+
             if (delimiter == null)
                 continue;
 
-            if (delimiter.isEmpty()) {
+            if (delimiter.isEmpty())
                 if (i == parserOutput.size() - 1)
                     return null;
                 else {
                     return new CommandResult(NO_SEPARATION,
                         command, it.start(2) - 1, it.end(2) + 1);
                 }
-            }
 
             if (delimiter.charAt(0) == '"') {
-                return new CommandResult(UNCLOSED_QUOTE,
-                    command, it.start(2) - 1, it.end(2));
-            }
 
-            if (delimiter.charAt(0) != ' ') {
-                return new CommandResult(INVALID_SYMBOL,
-                    command, it.start(2) - 1, it.end(2));
-            }
+                if (command.charAt(it.start(2) - 1) == '\"')
+                    return new CommandResult(
+                        NO_SEPARATION,
+                        command,
+                        it.start(2),
+                        it.end(2)
+                    );
 
-            if (delimiter.length() > 1) {
-                return new CommandResult(INVALID_SEPARATOR_SIZE,
-                    command, it.start(2), it.end(2)
+                return new CommandResult(
+                    UNCLOSED_QUOTE,
+                    command,
+                    it.start(2),
+                    it.end(2)
                 );
+
             }
 
+            if (delimiter.charAt(0) != ' ')
+                return new CommandResult(
+                    INVALID_SEPARATOR,
+                    command,
+                    it.start(2),
+                    it.end(2)
+                );
+
+            if (delimiter.length() > 1)
+                return new CommandResult(
+                    UNEXPECTED_SYMBOL,
+                    command,
+                    it.start(2) + 1,
+                    it.end(2)
+                );
         }
         return null;
     }

@@ -15,9 +15,9 @@ public class CommandProcessor {
     private final ArrayList<Command> registeredCommands = new ArrayList<>();
 
     static final Pattern pattern = Pattern.compile(
-        "^/|(\\w+|\"\"|\".*?(?:(?<=[^\\\\])(?:\\\\\\\\)+|[^\\\\])\")"
-            + "|"
-            + "([^\"^[:alnum]]+?(?=\\w|\"|$)|\".*)"
+        "^/" // Начало строки
+            + "|(\\w+|(?<!\")\"\"|(?<!\")\".*?(?:(?<=[^\\\\])(?:\\\\\\\\)+|[^\\\\])\")"
+            + "|([^\"^[:alnum]]+?(?=\\w|\"|$)|\".*)" // Сепараторы
     );
 
     /**
