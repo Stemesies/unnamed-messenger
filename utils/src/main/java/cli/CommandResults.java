@@ -15,8 +15,7 @@ public enum CommandResults {
     COMMAND_NOT_FOUND("Command not found."),
 
     // Executor
-    // TODO: Сделать CONDITIONS_NOT_MET получше
-    CONDITIONS_NOT_MET("Conditions not met: %s"),
+    CUSTOM_ERROR("%s"),
     MISSING_REQUIRED_ARGUMENT("Missing required argument <%s>."),
     FURTHER_SUBCOMMANDS_EXPECTED("Further subcommands expected."),
     UNKNOWN_SUBCOMMAND("Unknown subcommand."),

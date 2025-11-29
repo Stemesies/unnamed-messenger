@@ -14,20 +14,35 @@ public class CommandResult {
         this.start = start;
         this.end = end;
 
-        message = highlightError(
-            type.getMessage()
-                .formatted(args),
-            command,
-            start,
-            end
-        );
+        message = highlightError(type.getMessage().formatted(args), command, start, end);
 
     }
 
-    public CommandResult(CommandResults type, String command, Token token, Object... args) {
+    /**
+     * .
+     *
+     * @param command Команда для отображения. Может быть null
+     * @param type тип ошибки (см. {@link CommandResults})
+     * @param args аргументы для форматирования строки, если таковые нужны
+     */
+    public CommandResult(String command, CommandResults type, Object... args) {
+        this.type = type;
+        this.start = 0;
+        this.end = 0;
+
+        message = Ansi.applyStyle(type.getMessage().formatted(args), Ansi.Colors.RED)
+            + (command == null ? "" : "\n" + command);
+    }
+
+    CommandResult(CommandResults type, String command, Token token, Object... args) {
         this(type, command, token.start(), token.end(), args);
     }
 
+    /**
+     * .
+     *
+     * @param type тип ошибки (см. {@link CommandResults})
+     */
     public CommandResult(CommandResults type, Command.Context context, Object... args) {
         this(type, context.command, context.currentToken(), args);
     }

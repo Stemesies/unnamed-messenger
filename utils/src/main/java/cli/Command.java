@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static cli.CommandResults.CONDITIONS_NOT_MET;
+import static cli.CommandResults.CUSTOM_ERROR;
 import static cli.CommandResults.FURTHER_SUBCOMMANDS_EXPECTED;
 import static cli.CommandResults.INVALID_SUBCOMMAND;
 import static cli.CommandResults.INVALID_TOKEN;
@@ -100,7 +100,7 @@ public class Command {
 
         for (Condition condition : conditions) {
             if (!condition.checker.check())
-                return new CommandResult(CONDITIONS_NOT_MET, context, condition.message);
+                return new CommandResult(null, CUSTOM_ERROR, condition.message);
         }
 
         // Ищем позицию, на которой располагается следующая суб-команда:
@@ -148,7 +148,7 @@ public class Command {
 
     // -------
 
-    // TODO: migrate to user and group classes after they're done.
+    // TODO: метнуться на классы пользователя и группы, когда они будут закончены.
     public static class Context {
         String command;
         String user;

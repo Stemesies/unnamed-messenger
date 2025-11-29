@@ -1,6 +1,6 @@
 package cli;
 
-import utils.kt.Also;
+import utils.kt.ApplyStrict;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class CommandProcessor {
         registeredCommands.add(command);
     }
 
-    public void register(String command, Also<Command.Builder> action)
+    public void register(String command, ApplyStrict<Command.Builder> action)
         throws IllegalStateException {
 
         var c = Command.create(command);
