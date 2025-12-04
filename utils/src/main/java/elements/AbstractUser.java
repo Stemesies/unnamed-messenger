@@ -3,17 +3,17 @@ package elements;
 import java.util.ArrayList;
 
 public abstract class AbstractUser {
-    private int id;
-    private String userName;
-    private String name;
-    private String password;
-    private ArrayList<Integer> friends; // массив id'шников друзей
+    protected int id;
+    protected String userName;
+    protected String name;
+    protected String password;
+    protected ArrayList<Integer> friends; // массив id'шников друзей
 
     public ArrayList<Integer> request;
 
     public abstract void sendMessage(String text, int id);
     /*Реализация этого запроса будет переписана*/
-    public ArrayList<Integer> joinGroup(int e) { // ? extends Group
+    public ArrayList<Integer> joinGroup(int id) { // ? extends Group
                                                  // id группы, в которую вступает пользоватль
                                                  // возвращает переданный на сервер id пользователя?
 

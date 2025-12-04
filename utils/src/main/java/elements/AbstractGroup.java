@@ -3,14 +3,14 @@ package elements;
 import java.util.ArrayList;
 
 public abstract class AbstractGroup {
-    private int id;
-    private String groupName;
-    private String name;
-    private GroupTypes type;
+    protected int id;
+    protected String groupName;
+    protected String name;
+    protected GroupTypes type;
     protected ArrayList<Integer> members;
-    private ArrayList<Integer> admins;
-    private int owner;
-    private ArrayList<Integer> messages; // id-s сообщений группы
+    protected ArrayList<Integer> admins;
+    protected int owner;
+    protected ArrayList<Integer> messages; // id-s сообщений группы
 
     public int getIdGroup() {
         return this.id;
