@@ -63,6 +63,13 @@ public class Ansi {
     /**
      * Стилизует указанный текст, по завершении которого стиль сбрасывается.
      */
+    public String apply(Object string) {
+        return this.toString() + string + Modes.RESET;
+    }
+
+    /**
+     * Стилизует указанный текст, по завершении которого стиль сбрасывается.
+     */
     public static String applyStyle(Object string, Ansi style) {
         return style.toString() + string + Modes.RESET;
     }

@@ -1,4 +1,5 @@
 import cli.CommandProcessor;
+import cli.CommandResults;
 import network.SimpleSocket;
 
 import java.util.Scanner;
@@ -67,21 +68,33 @@ public class ClientMain {
             var msg = in.nextLine();
 
             if (msg.charAt(0) == '/') {
-                var procError = commandProcessor.execute(msg);
+                var procError = commandProcessor.execute(msg, null);
                 var procOutput = commandProcessor.getOutput();
-                if (procError != null)
-                    procError.explain();
-                else if (procOutput != null)
+                if (procError != null) {
+                    if (procError.type == CommandResults.COMMAND_NOT_FOUND)
+                        send(msg);
+                    else
+                        procError.explain();
+                } else {
                     System.out.print(procOutput);
+                    if (msg.startsWith("/help")) {
+                        System.out.println("bruh");
+                        send(msg);
+                    }
+                }
 
                 continue;
             }
 
-            if (isConnected())
-                socket.sendMessage(msg);
-            else
-                System.err.println("Not connected to server.");
+            send(msg);
         }
+    }
+
+    private void send(String msg) {
+        if (isConnected())
+            socket.sendMessage(msg);
+        else
+            System.err.println("Not connected to server.");
     }
 
     private void processConnection() {

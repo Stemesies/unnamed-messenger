@@ -11,14 +11,13 @@ public class Client {
 
     /**
      * Текущий привязанный профиль пользователя.
-     * <ul>
-     *     <li> <code>-1</code> - если профиль отсутствует
-     *     <li> <code>int</code> - если на клиенте был произведен вход/регистрация
-     * </ul>
+     * <br>
+     * <br><code>null</code> - если на клиенте
+     * не был произведен вход / регистрация.
      */
-    int user = -1;
+    public User user = null;
 
-    SimpleSocket socket;
+    private final SimpleSocket socket;
 
     public Client(SimpleSocket socket) {
         this.socket = socket;
@@ -33,8 +32,8 @@ public class Client {
      *
      * @see SimpleSocket#sendMessage(String)
      */
-    public void sendMessage(String message) throws IllegalStateException {
-        socket.sendMessage(message);
+    public void sendMessage(Object message) throws IllegalStateException {
+        socket.sendMessage(message.toString());
     }
 
     /**

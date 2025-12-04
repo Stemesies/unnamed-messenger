@@ -1,4 +1,4 @@
-package cli;
+package utils;
 
 public class StringPrintWriter {
     StringBuilder str = new StringBuilder();
@@ -32,5 +32,9 @@ public class StringPrintWriter {
 
     public void clear() {
         str = new StringBuilder();
+    }
+
+    public boolean isEmpty() {
+        return str.isEmpty();
     }
 }

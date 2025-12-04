@@ -1,4 +1,4 @@
-package cli;
+package cli.utils;
 
 public record Token(String content, int start, int end, boolean isArgument) {
 

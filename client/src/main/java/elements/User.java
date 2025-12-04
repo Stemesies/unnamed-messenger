@@ -7,6 +7,16 @@ public class User extends AbstractUser {
         // передача данных о сообщении на сервер
     }
 
+    @Override
+    public void setName(String name) {
+
+    }
+
+    @Override
+    public void setPassword(String password) {
+
+    }
+
 //    @Override
 //    public ArrayList<Integer> joinGroup(int id) {
 //         отправка запроса на сервер на вступление в группу

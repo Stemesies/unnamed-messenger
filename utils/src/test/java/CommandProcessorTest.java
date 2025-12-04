@@ -22,7 +22,7 @@ public class CommandProcessorTest {
                 Ansi.Colors.fromRgb(217, 76, 118)
             )
         );
-        return p.executeAndExplain(command);
+        return p.executeAndExplain(command, null);
     }
 
     /**

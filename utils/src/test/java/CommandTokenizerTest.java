@@ -1,5 +1,5 @@
 import cli.CommandTokenizer;
-import cli.Token;
+import cli.utils.Token;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

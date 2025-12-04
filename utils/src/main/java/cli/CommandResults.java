@@ -1,5 +1,7 @@
 package cli;
 
+import cli.utils.Token;
+
 public enum CommandResults {
 
     // Validator
@@ -39,7 +41,7 @@ public enum CommandResults {
         return new CommandResult(this, command, token.start(), token.end());
     }
 
-    public CommandResult create(Command.Context context) {
+    public CommandResult create(Context context) {
         return create(context.command, context.currentToken());
     }
 }

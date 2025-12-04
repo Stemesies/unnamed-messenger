@@ -15,6 +15,17 @@ public class User extends AbstractUser {
         // отправляет text второму пользователю id?
     }
 
+    @Override
+    public void setName(String name) {
+        this.name = name;
+        // TODO: обновление базы данных.
+    }
+
+    @Override
+    public void setPassword(String password) {
+
+    }
+
     public void activateManager() {
         while (!this.requests.isEmpty()) {
             SuperRequest r = requests.getFirst();
@@ -46,4 +57,7 @@ public class User extends AbstractUser {
         }
     }
 
+    public void sendFriendRequest(String username) {
+
+    }
 }

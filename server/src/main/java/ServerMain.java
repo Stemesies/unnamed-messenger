@@ -1,9 +1,9 @@
 import elements.Client;
 import network.SimpleServerSocket;
+import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Scanner;
-import utils.Utils;
 
 public class ServerMain {
     SimpleServerSocket socket = null;
@@ -78,6 +78,21 @@ public class ServerMain {
 
             while (client.hasNewMessage()) {
                 var line = client.receiveMessage();
+
+                if (line.charAt(0) == '/') {
+                    var proc = ClientCommands.processor;
+                    proc.execute(
+                        line,
+                        new ClientCommands.ClientContextData(client, client.user, null)
+                    );
+
+                    if (proc.getLastError() != null)
+                        client.sendMessage(proc.getLastError());
+                    else if (proc.getOutput() != null)
+                        client.sendMessage(proc.getOutput());
+                    continue;
+                }
+
                 var chatMessage = Utils.createChatMessage(client, line);
 
                 System.out.println(chatMessage);
@@ -107,6 +122,7 @@ public class ServerMain {
     }
 
     public static void main(String[] args) {
+        ClientCommands.init();
         new ServerMain().start();
     }
 }

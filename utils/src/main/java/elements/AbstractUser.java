@@ -1,5 +1,7 @@
 package elements;
 
+import utils.Ansi;
+
 import java.util.ArrayList;
 
 public abstract class AbstractUser {
@@ -25,12 +27,40 @@ public abstract class AbstractUser {
         return request;
     }
 
+    public String getProfile() {
+        return """
+            |------------------------
+            | %s (%s)
+            |
+            |------------------------
+            """.formatted(
+            Ansi.Modes.BOLD.apply(this.name),
+            this.userName
+        );
+    }
+
     public int getUserId() {
         return this.id;
     }
 
-    public ArrayList<Integer>  getFriends() {
+    public ArrayList<Integer> getFriends() {
         return this.friends;
     }
+
+    public String getUserName() {
+        return this.userName;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public abstract void setName(String name);
+
+    public abstract void setPassword(String password);
 
 }

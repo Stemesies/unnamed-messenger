@@ -1,5 +1,6 @@
 package cli;
 
+import cli.utils.Token;
 import utils.Ansi;
 
 public class CommandResult {
@@ -43,7 +44,7 @@ public class CommandResult {
      *
      * @param type тип ошибки (см. {@link CommandResults})
      */
-    public CommandResult(CommandResults type, Command.Context context, Object... args) {
+    public CommandResult(CommandResults type, Context<?> context, Object... args) {
         this(type, context.command, context.currentToken(), args);
     }
 
@@ -76,6 +77,11 @@ public class CommandResult {
             + '\n'
             + " ".repeat(leftPos)
             + Ansi.applyStyle("^".repeat(end - start), Ansi.Colors.RED);
+    }
+
+    @Override
+    public String toString() {
+        return message;
     }
 
     public void explain() {

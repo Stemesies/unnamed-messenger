@@ -1,5 +1,7 @@
 package cli;
 
+import cli.utils.Token;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.MatchResult;
