@@ -1,3 +1,4 @@
+import cli.CommandProcessor;
 import network.SimpleSocket;
 
 import java.util.Scanner;
@@ -7,21 +8,23 @@ public class ClientMain {
     private final String host;
     private final int port;
 
+    private final CommandProcessor commandProcessor = new CommandProcessor();
     private SimpleSocket socket = null;
     private final Scanner in = new Scanner(System.in);
 
     public ClientMain(String host, int port) {
         this.host = host;
         this.port = port;
+        registerCommands();
     }
 
     boolean isConnected() {
         return socket != null;
     }
+
     boolean isDisconnected() {
         return socket == null;
     }
-
 
     /**
      * Создает, если это возможно, соединение с сервером и начинает прослушивать сообщения.
@@ -63,15 +66,15 @@ public class ClientMain {
             }
             var msg = in.nextLine();
 
-            if(msg.equals("/retry") && isDisconnected()) {
-                connect();
+            if (msg.charAt(0) == '/') {
+                var procError = commandProcessor.execute(msg);
+                if (procError != null)
+                    procError.explain();
+
                 continue;
-            } else if(msg.equals("/exit")) {
-                exit();
-                return;
             }
 
-            if(isConnected())
+            if (isConnected())
                 socket.sendMessage(msg);
             else
                 System.err.println("Not connected to server.");
@@ -79,7 +82,7 @@ public class ClientMain {
     }
 
     private void processConnection() {
-        new Thread(()->{
+        new Thread(() -> {
             while (isConnected()) {
                 if (socket.hasNewMessage())
                     System.out.println(socket.receiveMessage());
@@ -89,6 +92,17 @@ public class ClientMain {
                 }
             }
         }).start();
+    }
+
+    private void registerCommands() {
+        commandProcessor.register("exit", (it) -> it
+            .executes(this::exit)
+        );
+        commandProcessor.register("retry", (it) -> it
+            .require("Already connected.", this::isDisconnected)
+            .executes(this::connect)
+        );
+
     }
 
     public static void main(String[] args) {
