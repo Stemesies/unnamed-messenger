@@ -1,5 +1,7 @@
 package cli;
 
+import elements.AbstractGroup;
+import elements.AbstractUser;
 import utils.kt.Apply;
 import utils.kt.Check;
 
@@ -18,20 +20,23 @@ import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
 public class Command {
 
     final String base;
-    private final List<Command> subcommands;
-    private final List<Argument> arguments;
+    final String helpDescription;
+    final List<Command> subcommands;
+    final List<Argument> arguments;
 
     final Apply<Context> action;
     final List<Condition> conditions;
 
     private Command(
         String base,
+        String helpDescription,
         List<Command> subcommands,
         List<Argument> arguments,
         Apply<Context> action,
         List<Condition> conditions
     ) {
         this.base = base;
+        this.helpDescription = helpDescription;
         this.subcommands = subcommands;
         this.arguments = arguments;
         this.action = action;
@@ -107,7 +112,8 @@ public class Command {
         var nextSubcommand = context.position + 1;
         Command foundSubcommand = null;
 
-        out: while (context.tokens.size() > nextSubcommand) {
+        out:
+        while (context.tokens.size() > nextSubcommand) {
             for (var subcommand : subcommands) {
                 var sbToken = context.getToken(nextSubcommand);
                 if (sbToken.is(subcommand.base) && sbToken.isFunctional()) {
@@ -147,18 +153,27 @@ public class Command {
     }
 
     // -------
-
-    // TODO: метнуться на классы пользователя и группы, когда они будут закончены.
+    
     public static class Context {
+        
+        public StringPrintWriter out;
+        public HashMap<String, Token> arguments = new HashMap<>();
+
         String command;
-        String user;
-        String group;
+        AbstractUser user;
+        AbstractGroup group;
 
         List<Token> tokens;
         int position = 0;
-        HashMap<String, Token> arguments = new HashMap<>();
 
-        public Context(List<Token> tokens, String command, String user, String group) {
+        public Context(
+            StringPrintWriter out,
+            List<Token> tokens,
+            String command,
+            AbstractUser user,
+            AbstractGroup group
+        ) {
+            this.out = out;
             this.tokens = tokens;
             this.command = command;
             this.user = user;
@@ -216,11 +231,19 @@ public class Command {
             this.isOptional = isOptional;
         }
 
+        @Override
+        public String toString() {
+            if (isOptional)
+                return "[" + name + "]";
+            else
+                return "<" + name + ">";
+        }
     }
 
     public static class Builder {
 
         String baseCommand;
+        String helpDescription = null;
         ArrayList<Builder> subcommands = new ArrayList<>();
         ArrayList<Argument> arguments = new ArrayList<>();
         Apply<Context> action = null;
@@ -228,6 +251,11 @@ public class Command {
 
         public Builder(String baseCommand) {
             this.baseCommand = baseCommand;
+        }
+
+        public Builder description(String helpDescription) {
+            this.helpDescription = helpDescription;
+            return this;
         }
 
         /**
@@ -333,6 +361,7 @@ public class Command {
 
             return new Command(
                 baseCommand,
+                helpDescription,
                 subcommands.stream()
                     .map(Builder::build)
                     .toList(),

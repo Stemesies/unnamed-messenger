@@ -1,5 +1,6 @@
 package cli;
 
+import utils.Ansi;
 import utils.kt.ApplyStrict;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import static cli.CommandResults.NOT_A_COMMAND;
 
 public class CommandProcessor {
 
+    private StringPrintWriter output = new StringPrintWriter();
     private CommandResult lastError = null;
     private final ArrayList<Command> registeredCommands = new ArrayList<>();
 
@@ -19,6 +21,10 @@ public class CommandProcessor {
             + "|(\\w+|(?<!\")\"\"|(?<!\")\".*?(?:(?<=[^\\\\])(?:\\\\\\\\)+|[^\\\\])\")"
             + "|([^\"^[:alnum]]+?(?=\\w|\"|$)|\".*)" // Сепараторы
     );
+
+    public CommandProcessor() {
+        createHelpCommand();
+    }
 
     /**
      * Возвращает ошибку при прошлой обработке команды. Значение обновляется по завершении
@@ -30,6 +36,10 @@ public class CommandProcessor {
      */
     public CommandResult getLastError() {
         return lastError;
+    }
+
+    public String getOutput() {
+        return output.str.isEmpty() ? null : output.toString();
     }
 
     // ---------------------------------
@@ -75,7 +85,11 @@ public class CommandProcessor {
      *     <br>false, если возникла ошибка
      */
     public CommandResult execute(String input) {
+        output.clear();
+
         if (input.charAt(0) != '/')
+            return new CommandResult(NOT_A_COMMAND, input, 0, input.length());
+        if (input.equals("/"))
             return new CommandResult(NOT_A_COMMAND, input, 0, input.length());
 
         var validatorError = CommandValidator.validate(input);
@@ -87,9 +101,61 @@ public class CommandProcessor {
 
         for (var command : registeredCommands)
             if (command.is(firstToken))
-                return command.execute(new Command.Context(tokens, input, "", ""));
+                return command.execute(new Command.Context(output, tokens, input, null, null));
 
         return new CommandResult(COMMAND_NOT_FOUND, input, firstToken);
     }
 
+    private void createHelpCommand() {
+        register("help", it1 -> it1
+            .description("выводит все доступные команды")
+            .findArgument("subcommand")
+            .executes((ctx) -> {
+                if (ctx.hasArgument("subcommand"))
+                    printAllPossibleCommands(ctx.out, ctx.getString("subcommand"));
+                else
+                    printAllPossibleCommands(ctx.out);
+            })
+        );
+    }
+
+    private void printAllPossibleCommands(StringPrintWriter out, String subcommand) {
+        Command cmd = null;
+        for (var command : registeredCommands)
+            if (command.base.equals(subcommand)) {
+                cmd = command;
+                break;
+            }
+        if (cmd == null) {
+            out.println(Ansi.applyStyle("Unknown command.", Ansi.Colors.RED));
+            return;
+        }
+        if (cmd.action != null) {
+            out.print('/');
+            printCommand(out, cmd);
+        }
+        for (var scmd : cmd.subcommands) {
+            out.print("/" + scmd + " ");
+            printCommand(out, scmd);
+        }
+    }
+
+    private void printAllPossibleCommands(StringPrintWriter out) {
+        registeredCommands.forEach(cmd -> {
+            out.print('/');
+            printCommand(out, cmd);
+        });
+    }
+
+    private void printCommand(StringPrintWriter out, Command cmd) {
+        out.print(cmd.base);
+
+        for (Command.Argument arg : cmd.arguments)
+            out.print(" " + arg);
+
+        if (cmd.helpDescription != null) {
+            out.print(" - " + cmd.helpDescription);
+        }
+        out.println();
+    }
 }

@@ -15,7 +15,7 @@ public class ClientMain {
     public ClientMain(String host, int port) {
         this.host = host;
         this.port = port;
-        registerCommands();
+        registerClientsideCommands();
     }
 
     boolean isConnected() {
@@ -68,8 +68,11 @@ public class ClientMain {
 
             if (msg.charAt(0) == '/') {
                 var procError = commandProcessor.execute(msg);
+                var procOutput = commandProcessor.getOutput();
                 if (procError != null)
                     procError.explain();
+                else if (procOutput != null)
+                    System.out.print(procOutput);
 
                 continue;
             }
@@ -94,7 +97,8 @@ public class ClientMain {
         }).start();
     }
 
-    private void registerCommands() {
+    private void registerClientsideCommands() {
+
         commandProcessor.register("exit", (it) -> it
             .executes(this::exit)
         );
