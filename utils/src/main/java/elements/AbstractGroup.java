@@ -7,10 +7,7 @@ public abstract class AbstractGroup {
     private String groupName;
     private String name;
     private GroupTypes type;
-//    protected int[] members;
     protected ArrayList<Integer> members;
-//    protected LinkedList<Integer> members;
-
     private ArrayList<Integer> admins;
     private int owner;
     private ArrayList<Integer> messages; // id-s сообщений группы

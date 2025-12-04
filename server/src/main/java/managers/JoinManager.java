@@ -13,10 +13,13 @@ public class JoinManager extends JoinRequest implements Manager{
         group.includeUser(user.getUserId());
     }
 
-    // нужно будет задать значение обоим полям перед вызовом
     User user;
     Group group;
 
+    public JoinManager(User user, Group group) {
+        this.user = user;
+        this.group = group;
+    }
     @Override
     public void applyManager() {
         this.joinGroup(this.user, this.group);

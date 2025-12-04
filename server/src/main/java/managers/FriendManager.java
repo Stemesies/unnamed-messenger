@@ -14,10 +14,15 @@ public class FriendManager extends FriendRequest implements Manager{
             user2.getFriends().add(user1.getUserId());
     }
 
-    // нужно будет определить все 3 поля перед вызовом метода
     User user1;
     User user2;
     boolean response;
+
+    public FriendManager(User user1, User user2, boolean resp) {
+        this.user1 = user1;
+        this.user2 = user2;
+        this.response = resp;
+    }
 
     @Override
     public void applyManager() {

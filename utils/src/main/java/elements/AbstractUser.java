@@ -3,7 +3,7 @@ package elements;
 import java.util.ArrayList;
 
 public abstract class AbstractUser {
-    private int id; // int - ?
+    private int id;
     private String userName;
     private String name;
     private String password;
@@ -27,7 +27,7 @@ public abstract class AbstractUser {
         return this.id;
     }
 
-    public ArrayList/*<? extends User>*/<Integer>  getFriends() {
+    public ArrayList<Integer>  getFriends() {
         return this.friends;
     }
 

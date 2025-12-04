@@ -25,14 +25,19 @@ public class User extends AbstractUser {
                     /*что-нибудь про регистрацию*/
                     break;
                 case Join:
-                    JoinManager manager2 = new JoinManager();
                     // достаём пользователя и группу из базы данных по id, инициилизируем поля класса
+                    // пока вставим заглушки
+                    User user = new User();
+                    Group group = new Group();
+                    JoinManager manager2 = new JoinManager(user, group);
                     manager2.applyManager();
                     break;
                 case Friend:
-                    FriendManager manager3 = new FriendManager();
                     // достаём пользователей из базы данных по id, инициилизируем поля класса
                     // response = true, пока мы не продумали ответ второго пользователя
+                    User user1 = new User();
+                    User user2 = new User();
+                    FriendManager manager3 = new FriendManager(user1, user2, true);
                     manager3.applyManager();
                     break;
                 default: return;
