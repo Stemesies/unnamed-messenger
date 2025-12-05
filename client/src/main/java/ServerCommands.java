@@ -83,4 +83,12 @@ public class ServerCommands {
                 .requireArgument("argumentName")
         );
     }
+
+    void initRegisterResponse() {
+        processor.register("register", (a) -> a
+                .description("s")
+                .subcommand("request", (b) -> b
+                        .executes(this::registerMsg))
+        );
+    }
 }
