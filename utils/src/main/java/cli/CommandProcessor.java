@@ -39,7 +39,7 @@ public class CommandProcessor {
     }
 
     public String getOutput() {
-        return output.str.isEmpty() ? null : output.toString();
+        return output.toString();
     }
 
     // ---------------------------------
@@ -99,9 +99,16 @@ public class CommandProcessor {
         List<Token> tokens = CommandTokenizer.tokenize(input);
         var firstToken = tokens.getFirst();
 
-        for (var command : registeredCommands)
-            if (command.is(firstToken))
-                return command.execute(new Command.Context(output, tokens, input, null, null));
+        for (var command : registeredCommands) {
+            if (!command.is(firstToken))
+                continue;
+
+            if (command.isPhantom != null)
+                return command.isPhantom;
+            else
+                return command.execute(new Command.Context(output, tokens, input, null, null)
+            );
+        }
 
         return new CommandResult(COMMAND_NOT_FOUND, input, firstToken);
     }
@@ -130,12 +137,12 @@ public class CommandProcessor {
             out.println(Ansi.applyStyle("Unknown command.", Ansi.Colors.RED));
             return;
         }
-        if (cmd.action != null) {
+        if (cmd.action != null || cmd.isPhantom != null) {
             out.print('/');
             printCommand(out, cmd);
         }
         for (var scmd : cmd.subcommands) {
-            out.print("/" + scmd + " ");
+            out.print("/" + cmd.base + " ");
             printCommand(out, scmd);
         }
     }

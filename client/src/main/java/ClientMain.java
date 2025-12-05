@@ -71,7 +71,7 @@ public class ClientMain {
                 var procOutput = commandProcessor.getOutput();
                 if (procError != null)
                     procError.explain();
-                else if (procOutput != null)
+                else if (!procOutput.isEmpty())
                     System.out.print(procOutput);
 
                 continue;

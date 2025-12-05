@@ -15,6 +15,7 @@ import static cli.CommandResults.FURTHER_SUBCOMMANDS_EXPECTED;
 import static cli.CommandResults.INVALID_SUBCOMMAND;
 import static cli.CommandResults.INVALID_TOKEN;
 import static cli.CommandResults.MISSING_REQUIRED_ARGUMENT;
+import static cli.CommandResults.PHANTOM_COMMAND;
 import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
 
 public class Command {
@@ -27,13 +28,16 @@ public class Command {
     final Apply<Context> action;
     final List<Condition> conditions;
 
+    final CommandResult isPhantom;
+
     private Command(
         String base,
         String helpDescription,
         List<Command> subcommands,
         List<Argument> arguments,
         Apply<Context> action,
-        List<Condition> conditions
+        List<Condition> conditions,
+        CommandResult isPhantom
     ) {
         this.base = base;
         this.helpDescription = helpDescription;
@@ -41,6 +45,7 @@ public class Command {
         this.arguments = arguments;
         this.action = action;
         this.conditions = conditions;
+        this.isPhantom = isPhantom;
     }
 
     public boolean is(Token token) {
@@ -248,9 +253,42 @@ public class Command {
         ArrayList<Argument> arguments = new ArrayList<>();
         Apply<Context> action = null;
         ArrayList<Condition> conditions = new ArrayList<>();
+        CommandResult isPhantom = null;
+        boolean isBase = true;
 
         public Builder(String baseCommand) {
             this.baseCommand = baseCommand;
+        }
+
+        /**
+         * Позволяет заявить команде /help, что данная команда существует.
+         * При этом ее нельзя будет вызвать:
+         * процессор будет выдавать ошибку {@link CommandResults#COMMAND_NOT_FOUND}.
+         * <br>
+         * <br> !! Данный метод не должен применяться к суб-командам !!
+         *
+         * @throws IllegalStateException Если метод был применен к суб-командам.
+         */
+        public Builder isPhantom(String msg) throws IllegalStateException {
+            if (!isBase)
+                throw new IllegalStateException(
+                    "isPhantom flag should not be set for subcommands."
+                );
+            isPhantom = new CommandResult(null, PHANTOM_COMMAND, msg);
+            return this;
+        }
+
+        /**
+         * Позволяет заявить команде /help, что данная команда существует.
+         * При этом ее нельзя будет вызвать:
+         * процессор будет выдавать ошибку {@link CommandResults#COMMAND_NOT_FOUND}.
+         * <br>
+         * <br> !! Данный метод не должен применяться к суб-командам !!
+         *
+         * @throws IllegalStateException Если метод был применен к суб-командам.
+         */
+        public Builder isPhantom() throws IllegalStateException {
+            return isPhantom("Command is unavailable.");
         }
 
         public Builder description(String helpDescription) {
@@ -264,8 +302,14 @@ public class Command {
          *
          * @param onFailure сообщение, выводимое при отсутствии необходимых условий.
          * @param condition условие прохода
+         * @throws IllegalStateException если команда фантомная.
          */
-        public Builder require(String onFailure, Check condition) {
+        public Builder require(String onFailure, Check condition) throws IllegalStateException {
+            if (isPhantom != null)
+                throw new IllegalStateException(
+                    "Conditions should not be used for phantom commands."
+                );
+
             this.conditions.add(new Condition(onFailure, condition));
             return this;
         }
@@ -310,11 +354,6 @@ public class Command {
             return this;
         }
 
-        public Builder subcommand(Builder builder) {
-            subcommands.add(builder);
-            return this;
-        }
-
         public Builder subcommand(String subcommand, Apply<Builder> subcommandSettings)
             throws IllegalArgumentException {
 
@@ -326,6 +365,10 @@ public class Command {
             }
 
             var sub = new Builder(subcommand);
+
+            sub.isPhantom = isPhantom;
+            sub.isBase = false;
+
             subcommands.add(sub);
             subcommandSettings.run(sub);
             return this;
@@ -335,9 +378,14 @@ public class Command {
          * Устанавливает действие, которое будет воспроизводиться
          * при успешном выполнении команды.
          *
-         * @param action проверки и действия
+         * @param action Проверки и действия
+         * @throws IllegalStateException Если команда фантомная
          */
-        public Builder executes(Runnable action) {
+        public Builder executes(Runnable action) throws IllegalStateException {
+            if (isPhantom != null)
+                throw new IllegalStateException(
+                    "Actions should not be used for phantom commands."
+                );
             this.action = (it) -> action.run();
             return this;
         }
@@ -347,14 +395,19 @@ public class Command {
          * при успешном выполнении команды.
          *
          * @param action проверки и действия
+         * @throws IllegalStateException Если команда фантомная
          */
-        public Builder executes(Apply<Context> action) {
+        public Builder executes(Apply<Context> action) throws IllegalStateException {
+            if (isPhantom != null)
+                throw new IllegalStateException(
+                    "Actions should not be used for phantom commands."
+                );
             this.action = action;
             return this;
         }
 
         public Command build() {
-            if (subcommands.isEmpty() && action == null)
+            if (subcommands.isEmpty() && action == null && isPhantom == null)
                 throw new IllegalStateException(
                     "No subcommand or actions specified for command " + baseCommand + "."
                 );
@@ -367,7 +420,8 @@ public class Command {
                     .toList(),
                 arguments,
                 action,
-                conditions
+                conditions,
+                isPhantom
             );
         }
     }
