@@ -12,4 +12,6 @@ public class Group extends AbstractGroup {
         this.members.remove(members.indexOf(id));
     }
 
+
+
 }

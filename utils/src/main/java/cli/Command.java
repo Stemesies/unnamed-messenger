@@ -52,7 +52,7 @@ public class Command<T> {
         return base.equals(token.content());
     }
 
-    public static <T /*extends ContextData*/> Builder<T> create(String baseCommand) {
+    public static <T> Builder<T> create(String baseCommand) {
         return new Builder<>(baseCommand);
     }
 

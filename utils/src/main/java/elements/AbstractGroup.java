@@ -16,6 +16,10 @@ public abstract class AbstractGroup {
         return this.id;
     }
 
+    public String getGroupName() {
+        return groupName;
+    }
+
     public abstract void includeUser(int id);
 
     public abstract void excludeUser(int id);
