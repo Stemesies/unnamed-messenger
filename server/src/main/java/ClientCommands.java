@@ -1,13 +1,12 @@
 import cli.CustomCommandProcessor;
 import cli.utils.Condition;
-import cli.utils.ContextData;
 import elements.Client;
 import elements.Group;
 import elements.User;
 
 public class ClientCommands {
 
-    public static class ClientContextData extends ContextData {
+    public static class ClientContextData/* extends ContextData*/ {
         public Client client;
         public User user;
         public Group group;

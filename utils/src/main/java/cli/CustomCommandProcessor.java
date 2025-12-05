@@ -1,7 +1,6 @@
 package cli;
 
 import cli.utils.Argument;
-import cli.utils.ContextData;
 import cli.utils.Token;
 import utils.Ansi;
 import utils.StringPrintWriter;
@@ -14,7 +13,7 @@ import java.util.regex.Pattern;
 import static cli.CommandResults.COMMAND_NOT_FOUND;
 import static cli.CommandResults.NOT_A_COMMAND;
 
-public class CustomCommandProcessor<T extends ContextData> {
+public class CustomCommandProcessor<T/* extends ContextData*/> {
 
     private final StringPrintWriter output = new StringPrintWriter();
     private CommandError lastError = null;
@@ -33,10 +32,10 @@ public class CustomCommandProcessor<T extends ContextData> {
     /**
      * Возвращает ошибку при прошлой обработке команды. Значение обновляется по завершении
      * исполнения команды, во время возврата функции
-     * {@link #execute(String, ContextData)}.
+     * {@link #execute(String, T)}.
      *
      * @return <code>IllegalCommandResult</code>, если предыдущий вызов
-     *     {@link #execute(String, ContextData)} завершился неудачей
+     *     {@link #execute(String, T)} завершился неудачей
      *     <br><code>null</code>, если все прошло успешно
      */
     public CommandError getLastError() {

@@ -2,7 +2,6 @@ package cli;
 
 import cli.utils.Argument;
 import cli.utils.Condition;
-import cli.utils.ContextData;
 import cli.utils.Token;
 import utils.kt.Apply;
 import utils.kt.Check;
@@ -19,7 +18,7 @@ import static cli.CommandResults.MISSING_REQUIRED_ARGUMENT;
 import static cli.CommandResults.PHANTOM_COMMAND;
 import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
 
-public class Command<T extends ContextData> {
+public class Command<T /*extends ContextData*/> {
 
     final String base;
     final String helpDescription;
@@ -53,7 +52,7 @@ public class Command<T extends ContextData> {
         return base.equals(token.content());
     }
 
-    public static <T extends ContextData> Builder<T> create(String baseCommand) {
+    public static <T /*extends ContextData*/> Builder<T> create(String baseCommand) {
         return new Builder<>(baseCommand);
     }
 
@@ -160,7 +159,7 @@ public class Command<T extends ContextData> {
 
     // -------
 
-    public static class Builder<T extends ContextData> {
+    public static class Builder<T /*extends ContextData*/> {
 
         String baseCommand;
         String helpDescription = null;

@@ -4,7 +4,7 @@ import cli.Context;
 import utils.kt.Check;
 import utils.kt.CheckIf;
 
-public class Condition<T extends ContextData> {
+public class Condition<T/* extends ContextData*/> {
     public final String message;
     public final CheckIf<Context<T>> checker;
 
