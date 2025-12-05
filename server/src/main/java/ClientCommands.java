@@ -4,7 +4,6 @@ import cli.utils.ContextData;
 import elements.Client;
 import elements.Group;
 import elements.User;
-import utils.Ansi;
 
 public class ClientCommands {
 
@@ -41,9 +40,7 @@ public class ClientCommands {
     private static void accountCategoryInit() {
         processor.register("register", (a) -> a
             .description("Создание нового аккаунта")
-            .require("You are already logged in.", (ctx) ->
-                !ctx.data.isAuthenticated()
-            )
+            .require("You are already logged in.", (ctx) -> !ctx.data.isAuthenticated())
             .requireArgument("username")
             .requireArgument("password")
             .executes((ctx) ->
@@ -56,18 +53,14 @@ public class ClientCommands {
         );
         processor.register("login", (a) -> a
             .description("Вход в существующий аккаунт")
-            .require("You are already logged in.", (ctx) ->
-                !ctx.data.isAuthenticated()
-            )
+            .require("You are already logged in.", (ctx) -> !ctx.data.isAuthenticated())
             .requireArgument("username")
             .requireArgument("password")
-            .executes((ctx) ->
-                User.logIn(
+            .executes((ctx) -> User.logIn(
                     ctx.out,
                     ctx.getString("username"),
                     ctx.getString("password")
-                )
-            )
+            ))
         );
         processor.register("logout", (a) -> a
             .description("Выход из учетной записи")
@@ -81,10 +74,10 @@ public class ClientCommands {
             .description("Устанавливает новый ник")
             .require(requireAuth)
             .requireArgument("nickname")
-            .executes((ctx) -> {
-                ctx.data.user.setName(ctx.getString("nickname"));
-                ctx.out.println("Successfully changed nickname.");
-            })
+            .executes((ctx) -> ctx.data.user.changeName(
+                ctx.out,
+                ctx.getString("nickname")
+            ))
         );
         processor.register("changePassword", (a) -> a
             .description("Устанавливает новый пароль")
@@ -92,13 +85,12 @@ public class ClientCommands {
             .requireArgument("oldPassword")
             .requireArgument("password")
             .requireArgument("passwordAgain")
-            .executes((ctx) -> {
-                var old = ctx.getString("oldPassword");
-                var password = ctx.getString("password");
-                var again = ctx.getString("passwordAgain");
-
-                ctx.data.user.changePassword(ctx.out, old, password, again);
-            })
+            .executes((ctx) -> ctx.data.user.changePassword(
+                ctx.out,
+                ctx.getString("oldPassword"),
+                ctx.getString("password"),
+                ctx.getString("passwordAgain")
+            ))
         );
         processor.register("profile", (a) -> a
             .description(
@@ -125,8 +117,11 @@ public class ClientCommands {
             .subcommand("list", (b) -> b
                 .description("Выводит список друзей")
                 .executes((ctx) -> {
-                    for (int friend : ctx.data.user.getFriends())
-                        ctx.out.println(friend);
+                    var list = ctx.data.user.getFriends();
+                    if (list.isEmpty())
+                        ctx.out.println("No friends.");
+                    else
+                        list.forEach((it) -> ctx.out.println(it));
                 })
             )
             .subcommand("request", (b) -> b
@@ -134,6 +129,13 @@ public class ClientCommands {
                 .requireArgument("username")
                 .executes((ctx) -> ctx.data.user
                     .sendFriendRequest(ctx.getString("username"))
+                )
+            )
+            .subcommand("request", (b) -> b
+                .description("Отзыв отправленного запроса на дружбу пользователю @username")
+                .requireArgument("username")
+                .executes((ctx) -> ctx.data.user
+                    .dismissFriendRequest(ctx.getString("username"))
                 )
             )
             .subcommand("accept", (b) -> b

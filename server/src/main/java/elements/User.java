@@ -74,6 +74,7 @@ public class User extends AbstractUser {
 
     }
 
+    // Возможно переименование в setPassword
     public void changePassword(StringPrintWriter out, String old, String password, String again) {
         if (!this.getPassword().equals(old)) {
             out.println(Ansi.Colors.RED.apply("Invalid password."));
@@ -87,5 +88,16 @@ public class User extends AbstractUser {
 
         // TODO: Изменение пароля
         out.println("Successfully changed password.");
+    }
+
+    // Возможно переименование в setName
+    public void changeName(StringPrintWriter out, String nickname) {
+        // TODO: смена имени
+        setName(nickname);
+        out.println("Successfully changed nickname.");
+    }
+
+    public void dismissFriendRequest(String username) {
+        // TODO: Ну, вы знаете.
     }
 }
