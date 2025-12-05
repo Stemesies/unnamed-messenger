@@ -6,7 +6,7 @@ import elements.User;
 
 public class ClientCommands {
 
-    public static class ClientContextData/* extends ContextData*/ {
+    public static class ClientContextData {
         public Client client;
         public User user;
         public Group group;

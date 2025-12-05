@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class Context<T /*extends ContextData*/> {
+public class Context<T> {
 
     public StringPrintWriter out;
     public HashMap<String, Token> arguments = new HashMap<>();

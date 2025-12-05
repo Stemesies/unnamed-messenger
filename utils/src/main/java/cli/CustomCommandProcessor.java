@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import static cli.CommandResults.COMMAND_NOT_FOUND;
 import static cli.CommandResults.NOT_A_COMMAND;
 
-public class CustomCommandProcessor<T/* extends ContextData*/> {
+public class CustomCommandProcessor<T> {
 
     private final StringPrintWriter output = new StringPrintWriter();
     private CommandError lastError = null;

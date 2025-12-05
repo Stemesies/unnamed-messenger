@@ -18,7 +18,7 @@ import static cli.CommandResults.MISSING_REQUIRED_ARGUMENT;
 import static cli.CommandResults.PHANTOM_COMMAND;
 import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
 
-public class Command<T /*extends ContextData*/> {
+public class Command<T> {
 
     final String base;
     final String helpDescription;
@@ -159,7 +159,7 @@ public class Command<T /*extends ContextData*/> {
 
     // -------
 
-    public static class Builder<T /*extends ContextData*/> {
+    public static class Builder<T> {
 
         String baseCommand;
         String helpDescription = null;
