@@ -17,6 +17,7 @@ public enum CommandResults {
     COMMAND_NOT_FOUND("Command not found."),
 
     // Executor
+    PHANTOM_COMMAND("%s"),
     CUSTOM_ERROR("%s"),
     MISSING_REQUIRED_ARGUMENT("Missing required argument <%s>."),
     FURTHER_SUBCOMMANDS_EXPECTED("Further subcommands expected."),

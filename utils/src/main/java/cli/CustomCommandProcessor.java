@@ -109,11 +109,15 @@ public class CustomCommandProcessor<T extends ContextData> {
         List<Token> tokens = CommandTokenizer.tokenize(input);
         var firstToken = tokens.getFirst();
 
-        for (var command : registeredCommands)
-            if (command.is(firstToken)) {
-                lastError = command.execute(new Context<>(output, tokens, input, contextData));
-                return lastError;
-            }
+        for (var command : registeredCommands) {
+            if (!command.is(firstToken))
+                continue;
+
+            if (command.isPhantom != null)
+                return command.isPhantom;
+            lastError = command.execute(new Context<>(output, tokens, input, contextData));
+            return lastError;
+        }
 
         return new CommandError(COMMAND_NOT_FOUND, input, firstToken);
     }
@@ -142,7 +146,8 @@ public class CustomCommandProcessor<T extends ContextData> {
             out.println(Ansi.applyStyle("Unknown command.", Ansi.Colors.RED));
             return;
         }
-        if (cmd.action != null) {
+
+        if (cmd.action != null || cmd.isPhantom != null) {
             out.print('/');
             printCommand(out, cmd);
         }

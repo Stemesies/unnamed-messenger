@@ -4,6 +4,8 @@ import network.SimpleSocket;
 
 import java.util.Scanner;
 
+import static cli.CommandResults.PHANTOM_COMMAND;
+
 public class ClientMain {
 
     private final String host;
@@ -72,17 +74,12 @@ public class ClientMain {
                 var procError = commandProcessor.getLastError();
                 var procOutput = commandProcessor.getOutput();
                 if (procError != null) {
-                    if (procError.type == CommandResults.COMMAND_NOT_FOUND)
+                    if (procError.type == PHANTOM_COMMAND)
                         send(msg);
                     else
                         procError.explain();
-                } else {
+                } else if (!procOutput.isEmpty())
                     System.out.print(procOutput);
-                    if (msg.startsWith("/help")) {
-                        System.out.println("bruh");
-                        send(msg);
-                    }
-                }
 
                 continue;
             }

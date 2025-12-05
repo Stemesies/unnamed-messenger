@@ -16,6 +16,7 @@ import static cli.CommandResults.FURTHER_SUBCOMMANDS_EXPECTED;
 import static cli.CommandResults.INVALID_SUBCOMMAND;
 import static cli.CommandResults.INVALID_TOKEN;
 import static cli.CommandResults.MISSING_REQUIRED_ARGUMENT;
+import static cli.CommandResults.PHANTOM_COMMAND;
 import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
 
 public class Command<T extends ContextData> {
@@ -28,13 +29,16 @@ public class Command<T extends ContextData> {
     final Apply<Context<T>> action;
     final List<Condition<T>> conditions;
 
+    final CommandError isPhantom;
+
     private Command(
         String base,
         String helpDescription,
         List<Command<T>> subcommands,
         List<Argument> arguments,
         Apply<Context<T>> action,
-        List<Condition<T>> conditions
+        List<Condition<T>> conditions,
+        CommandError isPhantom
     ) {
         this.base = base;
         this.helpDescription = helpDescription;
@@ -42,6 +46,7 @@ public class Command<T extends ContextData> {
         this.arguments = arguments;
         this.action = action;
         this.conditions = conditions;
+        this.isPhantom = isPhantom;
     }
 
     public boolean is(Token token) {
@@ -163,9 +168,42 @@ public class Command<T extends ContextData> {
         ArrayList<Argument> arguments = new ArrayList<>();
         Apply<Context<T>> action = null;
         ArrayList<Condition<T>> conditions = new ArrayList<>();
+        CommandError isPhantom = null;
+        boolean isBase = true;
 
         public Builder(String baseCommand) {
             this.baseCommand = baseCommand;
+        }
+
+        /**
+         * Позволяет заявить команде /help, что данная команда существует.
+         * При этом ее нельзя будет вызвать:
+         * процессор будет выдавать ошибку {@link CommandResults#COMMAND_NOT_FOUND}.
+         * <br>
+         * <br> !! Данный метод не должен применяться к суб-командам !!
+         *
+         * @throws IllegalStateException Если метод был применен к суб-командам.
+         */
+        public Builder<T> isPhantom(String msg) throws IllegalStateException {
+            if (!isBase)
+                throw new IllegalStateException(
+                    "isPhantom flag should not be set for subcommands."
+                );
+            isPhantom = new CommandError(null, PHANTOM_COMMAND, msg);
+            return this;
+        }
+
+        /**
+         * Позволяет заявить команде /help, что данная команда существует.
+         * При этом ее нельзя будет вызвать:
+         * процессор будет выдавать ошибку {@link CommandResults#COMMAND_NOT_FOUND}.
+         * <br>
+         * <br> !! Данный метод не должен применяться к суб-командам !!
+         *
+         * @throws IllegalStateException Если метод был применен к суб-командам.
+         */
+        public Builder<T> isPhantom() throws IllegalStateException {
+            return isPhantom("Command is unavailable.");
         }
 
         public Builder<T> description(String helpDescription) {
@@ -179,8 +217,13 @@ public class Command<T extends ContextData> {
          *
          * @param onFailure сообщение, выводимое при отсутствии необходимых условий.
          * @param condition условие прохода
+         * @throws IllegalStateException если команда фантомная.
          */
-        public Builder<T> require(String onFailure, Check condition) {
+        public Builder<T> require(String onFailure, Check condition) throws IllegalStateException {
+            if (isPhantom != null)
+                throw new IllegalStateException(
+                    "Conditions should not be used for phantom commands."
+                );
             this.conditions.add(new Condition<>(onFailure, condition));
             return this;
         }
@@ -193,18 +236,11 @@ public class Command<T extends ContextData> {
          * @param condition условие прохода
          */
         public Builder<T> require(String onFailure, CheckIf<Context<T>> condition) {
+            if (isPhantom != null)
+                throw new IllegalStateException(
+                    "Conditions should not be used for phantom commands."
+                );
             this.conditions.add(new Condition<>(onFailure, condition));
-            return this;
-        }
-
-        /**
-         * Устанавливает условие, при котором команда должна
-         * запускаться или проходить дальше по иерархии.
-         *
-         * @param condition условие прохода
-         */
-        public Builder<T> require(Condition<T> condition) {
-            this.conditions.add(condition);
             return this;
         }
 
@@ -248,11 +284,6 @@ public class Command<T extends ContextData> {
             return this;
         }
 
-        public Builder<T> subcommand(Builder<T> builder) {
-            subcommands.add(builder);
-            return this;
-        }
-
         public Builder<T> subcommand(String subcommand, Apply<Builder<T>> subcommandSettings)
             throws IllegalArgumentException {
 
@@ -264,6 +295,9 @@ public class Command<T extends ContextData> {
             }
 
             var sub = new Builder<T>(subcommand);
+
+            sub.isPhantom = isPhantom;
+            sub.isBase = false;
             subcommands.add(sub);
             subcommandSettings.run(sub);
             return this;
@@ -273,9 +307,14 @@ public class Command<T extends ContextData> {
          * Устанавливает действие, которое будет воспроизводиться
          * при успешном выполнении команды.
          *
-         * @param action проверки и действия
+         * @param action Проверки и действия
+         * @throws IllegalStateException Если команда фантомная
          */
-        public Builder<T> executes(Runnable action) {
+        public Builder<T> executes(Runnable action) throws IllegalStateException {
+            if (isPhantom != null)
+                throw new IllegalStateException(
+                    "Actions should not be used for phantom commands."
+                );
             this.action = (it) -> action.run();
             return this;
         }
@@ -285,14 +324,19 @@ public class Command<T extends ContextData> {
          * при успешном выполнении команды.
          *
          * @param action проверки и действия
+         * @throws IllegalStateException Если команда фантомная
          */
-        public Builder<T> executes(Apply<Context<T>> action) {
+        public Builder<T> executes(Apply<Context<T>> action) throws IllegalStateException {
+            if (isPhantom != null)
+                throw new IllegalStateException(
+                    "Actions should not be used for phantom commands."
+                );
             this.action = action;
             return this;
         }
 
         public Command<T> build() {
-            if (subcommands.isEmpty() && action == null)
+            if (subcommands.isEmpty() && action == null && isPhantom == null)
                 throw new IllegalStateException(
                     "No subcommand or actions specified for command " + baseCommand + "."
                 );
@@ -305,7 +349,8 @@ public class Command<T extends ContextData> {
                     .toList(),
                 arguments,
                 action,
-                conditions
+                conditions,
+                isPhantom
             );
         }
     }
