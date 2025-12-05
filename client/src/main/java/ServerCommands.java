@@ -54,7 +54,6 @@ public class ServerCommands {
         }
 
         responseInput.close();
-//        return request;
     }
 
     void friendAddMsg() {
@@ -74,24 +73,14 @@ public class ServerCommands {
     }
 
     void initFriendResponse() {
-        friendRequestMsg();
-        if (!this.data.request.isResponsed)
-            throw new Error(); // Ошибка: получена неверная команда.
-        var answer = this.data.request.requested ? "y" : "n";
         processor.register("friend", (a) -> a
                 .description("add user to your friends or not?")
-                .requireArgument(answer)
                 .subcommand("add", (b) -> b
-                        .description("Add user to friends"))
-                .subcommand("cancel", (c) -> c
-                        .description("cancel friend request"))
-                .executes((success) -> {
-                    System.out.printf("You received a friend request from user %s\n! Are you want to approve it?",
-                            data.user.getUserName());
-//                    if (success.getString(answer).equals("y")) {
-//                        success.data.user.addFriend(req.friendId);
-//                    }
-                })
+                        .description("Add user to friends")
+                        .executes((success) -> {
+                            System.out.println(success.getString("argumentName"));
+                        }))
+                .requireArgument("argumentName")
         );
     }
 }
