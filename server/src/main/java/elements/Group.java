@@ -58,6 +58,6 @@ public class Group extends AbstractGroup {
             return;
         }
         members.add(user);
-        out.println(username + "invited to " + name);
+        out.println(username + " invited to " + name);
     }
 }

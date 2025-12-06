@@ -2,6 +2,8 @@ package elements;
 
 import utils.Ansi;
 import utils.StringPrintWriter;
+import utils.extensions.CollectionExt;
+import utils.extensions.StringExt;
 
 import java.util.ArrayList;
 
@@ -114,6 +116,33 @@ public class User extends AbstractUser {
 
         this.password = password;
         out.println("Successfully changed password.");
+    }
+
+    @SuppressWarnings("checkstyle:LineLength")
+    public String getProfile() {
+        var connectedCommand = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user == this);
+        var onlineMode = connectedCommand == null ? "" : " • online";
+
+        var boxSize = 50;
+        var trimmedName = StringExt.limit(this.name, boxSize - 6 - onlineMode.length());
+        var trimmedUsername = StringExt.limit(this.userName, boxSize - 5);
+
+        var headerColor = Ansi.BgColors.fromRgb(34, 55, 75);
+
+
+        return """
+            ┌%s┐
+            │%s│
+            │ @%s │
+            │
+            └%s┘
+            """.formatted(
+                "─".repeat(boxSize - 2),
+                headerColor.apply(" ") + Ansi.Modes.BOLD.and(headerColor).apply(trimmedName)
+                        + headerColor.apply(onlineMode + " ".repeat(boxSize - 3 - onlineMode.length() - trimmedName.length())),
+                this.userName + " ".repeat(boxSize - 5 - trimmedUsername.length()),
+                "─".repeat(boxSize - 2)
+        );
     }
 
     // Возможно переименование в setName

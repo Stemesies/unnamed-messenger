@@ -96,8 +96,18 @@ public class ClientCommands {
             .findArgument("username")
             .executes((ctx) -> {
                 if (ctx.hasArgument("username")) {
+                    var username = ctx.getString("username");
+                    var user = CollectionExt.findBy(
+                            ServerData.getRegisteredUsers(),
+                            (it) -> it.getUserName().equals(username)
+                    );
+                    if (user == null) {
+                        ctx.out.println(Ansi.Colors.RED.apply("User not found."));
+                        return;
+                    }
+
+                    ctx.out.print(user.getProfile());
                     // TODO: получаем и отображаем профиль человека
-                    ctx.out.println("Профиль: " + ctx.getString("username"));
                 } else {
                     ctx.out.println(ctx.data.user.getProfile());
                 }
