@@ -1,15 +1,16 @@
 import elements.Client;
 import network.SimpleServerSocket;
+import utils.Ansi;
 import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static elements.ServerData.getClients;
+
 public class ServerMain {
     SimpleServerSocket socket = null;
     private final Scanner in = new Scanner(System.in);
-
-    private final ArrayList<Client> clients = new ArrayList<>();
 
     public void start() {
         socket = new SimpleServerSocket(8080);
@@ -30,7 +31,7 @@ public class ServerMain {
                     continue;
                 var client = new Client(clSocket);
                 System.out.println("new client");
-                clients.add(client);
+                getClients().add(client);
                 processClient(client);
             }
         }).start();
@@ -39,7 +40,7 @@ public class ServerMain {
     public void stop() {
         broadcast("Closing server...");
 
-        new ArrayList<>(clients).forEach(Client::close);
+        new ArrayList<>(getClients()).forEach(Client::close);
         System.out.println("Server closed.");
         socket.close();
         System.exit(0);
@@ -51,8 +52,8 @@ public class ServerMain {
      * @param message сообщение для вещания
      */
     public void broadcast(String message) {
-        for (var client : clients)
-            client.sendMessage(message);
+        for (var client : getClients())
+            client.sendln(message);
     }
 
     /**
@@ -62,9 +63,9 @@ public class ServerMain {
      * @param excludedClient клиент, которому не следует присылать сообщение
      */
     public void broadcast(String message, Client excludedClient) {
-        for (var client : clients)
+        for (var client : getClients())
             if (client != excludedClient)
-                client.sendMessage(message);
+                client.sendln(message);
     }
 
     /**
@@ -83,25 +84,20 @@ public class ServerMain {
                     var proc = ClientCommands.processor;
                     proc.execute(
                         line,
-                        new ClientCommands.ClientContextData(client, client.user, null)
+                        new ClientCommands.ClientContextData(client, client.user, client.group)
                     );
 
                     if (proc.getLastError() != null)
-                        client.sendMessage(proc.getLastError());
+                        client.sendln(proc.getLastError());
                     else if (proc.getOutput() != null)
-                        client.sendMessage(proc.getOutput());
+                        client.send(proc.getOutput());
                     continue;
                 }
 
-                var chatMessage = Utils.createChatMessage(client, line);
-
-                System.out.println(chatMessage);
-
-                client.sendMessage(Utils.createChatMessage("you", line));
-                broadcast(chatMessage, client);
+                client.sendMessageToChat(line);
             }
 
-            clients.remove(client);
+            getClients().remove(client);
             System.out.printf("Client %s disconnected\n", client);
         }).start();
     }

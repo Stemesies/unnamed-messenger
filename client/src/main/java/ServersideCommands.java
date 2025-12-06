@@ -1,5 +1,10 @@
 import cli.CommandProcessor;
+import utils.Ansi;
+import utils.extensions.CollectionExt;
 
+/**
+ * Описания команд, которые клиент может отправлять серверу.
+ */
 public class ServersideCommands {
 
     public static void init(CommandProcessor processor) {
@@ -44,6 +49,11 @@ public class ServersideCommands {
                     + "Если второй аргумент не задан, показывается свой профиль"
             )
             .findArgument("username")
+        );
+        processor.register("open", (a) -> a
+            .isPhantom()
+            .description("Открывает чат")
+            .requireArgument("groupname")
         );
     }
 

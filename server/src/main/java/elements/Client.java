@@ -1,6 +1,9 @@
 package elements;
 
 import network.SimpleSocket;
+import utils.Ansi;
+import utils.Utils;
+import utils.extensions.CollectionExt;
 
 /**
  * Репрезентация клиента со стороны сервера.
@@ -17,6 +20,9 @@ public class Client {
      */
     public User user = null;
 
+    @Deprecated
+    public Group group = null;
+
     private final SimpleSocket socket;
 
     public Client(SimpleSocket socket) {
@@ -30,10 +36,19 @@ public class Client {
     /**
      * Отправляет сообщение клиенту.
      *
-     * @see SimpleSocket#sendMessage(String)
+     * @see SimpleSocket#sendln(String)
      */
-    public void sendMessage(Object message) throws IllegalStateException {
-        socket.sendMessage(message.toString());
+    public void sendln(Object message) throws IllegalStateException {
+        socket.sendln(message.toString());
+    }
+
+    /**
+     * Отправляет сообщение клиенту.
+     *
+     * @see SimpleSocket#sendln(String)
+     */
+    public void send(Object message) throws IllegalStateException {
+        socket.send(message.toString());
     }
 
     /**
@@ -54,4 +69,29 @@ public class Client {
         return socket.receiveMessage();
     }
 
+    @Override
+    public String toString() {
+        return user == null ? super.toString() : user.getName();
+    }
+
+    public void sendMessageToChat(String message) {
+        if (user != null) {
+            if (group == null) {
+                sendln(Ansi.Colors.RED.apply("No group opened."));
+                return;
+            }
+            var chatMessage = Utils.createChatMessage(this, message);
+
+            System.out.println(group.groupname + ": " + chatMessage);
+            group.messages.add(new Message(0, chatMessage, 0, null));
+            for (var u : group.members) {
+                var client = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user == u);
+                if (client == null)
+                    continue;
+                client.sendln(chatMessage);
+            }
+        } else {
+            sendln(Ansi.Colors.RED.apply("You aren't logged in."));
+        }
+    }
 }

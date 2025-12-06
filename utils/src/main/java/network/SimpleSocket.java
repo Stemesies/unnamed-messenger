@@ -65,9 +65,21 @@ public class SimpleSocket implements Closeable {
      * @param message сообщение
      * @throws IllegalStateException если сокет закрыт
      */
-    public void sendMessage(String message) throws IllegalStateException {
+    public void sendln(String message) throws IllegalStateException {
         ensureOpen();
         out.println(message);
+    }
+
+    /**
+     * Отправляет сообщение данному сокету.
+     *
+     * @param message сообщение
+     * @throws IllegalStateException если сокет закрыт
+     */
+    public void send(String message) throws IllegalStateException {
+        ensureOpen();
+        out.print(message);
+        out.flush();
     }
 
     /**

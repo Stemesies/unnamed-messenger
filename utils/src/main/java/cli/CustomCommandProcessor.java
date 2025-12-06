@@ -22,7 +22,7 @@ import static cli.CommandErrors.NOT_A_COMMAND;
  *         int myField = 1;
  *     }
  *
- *     var processor = new CommandProcessor<MyData>()
+ *     var processor = new CustomCommandProcessor<MyData>()
  *     processor.register("myCommand", (a)->a
  *         .require("Error: not 1.", (context)-> context.data.myField == 1)
  *         .executes((context)->
@@ -191,8 +191,11 @@ public class CustomCommandProcessor<T> {
 
     private void printAllPossibleCommands(StringPrintWriter out) {
         registeredCommands.forEach(cmd -> {
-            out.print('/');
-            printCommand(out, cmd);
+            out.print('/' + cmd.base);
+
+            for (Argument arg : cmd.arguments)
+                out.print(" " + arg);
+            out.println();
         });
     }
 

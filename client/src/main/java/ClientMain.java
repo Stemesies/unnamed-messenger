@@ -1,5 +1,7 @@
 import cli.CommandProcessor;
 import network.SimpleSocket;
+import utils.Ansi;
+import utils.Utils;
 
 import java.util.Scanner;
 
@@ -69,7 +71,10 @@ public class ClientMain {
                 exit();
                 return;
             }
-            var msg = in.nextLine();
+            var msg = in.nextLine().trim();
+
+            if (msg.isEmpty())
+                continue;
 
             if (msg.charAt(0) == '/') {
                 commandProcessor.execute(msg);
@@ -86,13 +91,14 @@ public class ClientMain {
                 continue;
             }
 
+            Ansi.clearLine();
             send(msg);
         }
     }
 
     private void send(String msg) {
         if (isConnected())
-            socket.sendMessage(msg);
+            socket.sendln(msg);
         else
             System.err.println("Not connected to the server.");
     }

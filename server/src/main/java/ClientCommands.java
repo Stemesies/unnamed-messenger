@@ -2,7 +2,10 @@ import cli.CustomCommandProcessor;
 import cli.utils.Condition;
 import elements.Client;
 import elements.Group;
+import elements.ServerData;
 import elements.User;
+import utils.Ansi;
+import utils.extensions.CollectionExt;
 
 public class ClientCommands {
 
@@ -64,7 +67,7 @@ public class ClientCommands {
         processor.register("logout", (a) -> a
             .require(requireAuth)
             .executes((ctx) -> {
-                ctx.data.user = null;
+                ctx.data.client.user = null;
                 ctx.out.println("Successfully logged out.");
             })
         );
@@ -100,6 +103,34 @@ public class ClientCommands {
                 }
             })
         );
+
+        processor.register("open", (a) -> a
+            .require(requireAuth)
+            .requireArgument("groupname")
+            .executes((ctx) -> {
+                var groupname = ctx.getString("groupname");
+                var group = CollectionExt.findBy(
+                    ServerData.getRegisteredGroups(),
+                    (it) -> it.getGroupname().equals(groupname)
+                );
+                if (group == null) {
+                    ctx.out.println(Ansi.Colors.RED.apply("Group not found."));
+                    return;
+                }
+                if (CollectionExt.findBy(
+                    group.getMembers(),
+                    (it) -> it.getUserName().equals(ctx.data.client.user.getUserName())
+                ) == null) {
+                    ctx.out.println(Ansi.Colors.RED.apply("You are not a member of that group."));
+                    return;
+                }
+                ctx.data.client.group = group;
+                for (var m : group.getMessages())
+                    ctx.data.client.sendln(m.getContent());
+
+
+            })
+        );
     }
 
     private static void friendsCategoryInit() {
@@ -117,7 +148,7 @@ public class ClientCommands {
             .subcommand("request", (b) -> b
                 .requireArgument("username")
                 .executes((ctx) -> ctx.data.user
-                    .sendFriendRequest(ctx.getString("username"))
+                    .sendFriendRequest(ctx.out, ctx.getString("username"))
                 )
                 .subcommand("dismiss", (c -> c
                     .executes((ctx) -> ctx.data.user
@@ -157,21 +188,29 @@ public class ClientCommands {
                 .requireArgument("groupname")
                 .findArgument("name")
                 .executes((ctx) -> {
-                    // TODO: yea
-                    ctx.out.println("Created");
+                    var groupname = ctx.getString("groupname");
+                    var name = ctx.hasArgument("name")
+                        ? ctx.getString("name")
+                        : groupname;
+
+                    Group.register(
+                        ctx.out,
+                        ctx.data.user,
+                        groupname,
+                        name
+                    );
                 })
             )
             .subcommand("delete", (b) -> b
                 .executes((ctx) -> {
-                    // TODO: yea....
+                    // TODO: ...
                     ctx.out.println("Deleted");
                 })
             )
             .subcommand("invite", (b) -> b
                 .requireArgument("username")
                 .executes((ctx) -> {
-                    // TODO: ...
-                    ctx.out.println("Invited");
+                    ctx.data.group.invite(ctx.out, ctx.getString("username"));
                 })
             )
             .subcommand("accept", (b) -> b

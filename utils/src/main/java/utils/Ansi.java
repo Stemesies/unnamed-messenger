@@ -102,7 +102,8 @@ public class Ansi {
      * <br>Встроенная консоль Intelij IDEA не поддерживает эту функцию.
      */
     public static void clearLine() {
-        System.out.print("\33[2K\r");
+        System.out.print("\033[1A\33[2K\r");
+        System.out.flush();
     }
 
     public static class Modes {

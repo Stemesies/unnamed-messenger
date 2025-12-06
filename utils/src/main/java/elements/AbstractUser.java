@@ -1,6 +1,7 @@
 package elements;
 
 import utils.Ansi;
+import utils.extensions.StringExt;
 
 import java.util.ArrayList;
 
@@ -28,14 +29,24 @@ public abstract class AbstractUser {
     }
 
     public String getProfile() {
+        var boxSize = 50;
+        var trimmedName = StringExt.limit(this.name, boxSize - 4);
+        var trimmedUsername = StringExt.limit(this.userName, boxSize - 5);
+
+        var headerColor = Ansi.BgColors.fromRgb(34, 55, 75);
+
         return """
-            |------------------------
-            | %s (%s)
-            |
-            |------------------------
+            ┌%s┐
+            │%s│
+            │ @%s │
+            │
+            └%s┘
             """.formatted(
-            Ansi.Modes.BOLD.apply(this.name),
-            this.userName
+            "─".repeat(boxSize - 2),
+            headerColor.apply(" ") + Ansi.Modes.BOLD.and(headerColor).apply(trimmedName)
+                + headerColor.apply(" ".repeat(boxSize - 3 - trimmedName.length())),
+            this.userName + " ".repeat(boxSize - 5 - trimmedUsername.length()),
+            "─".repeat(boxSize - 2)
         );
     }
 
