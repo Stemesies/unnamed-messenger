@@ -22,6 +22,7 @@ public class ServerCommands {
 //            this.user = user;
 //            this.group = group;
 //            this.request = request;
+//            this.socket = socket;
         }
     }
 
@@ -31,7 +32,6 @@ public class ServerCommands {
 
     static void registerMsg() {
         System.out.println("you are logged out! Please, log in or register your account.");
-
     }
 
     void friendRequestMsg() {
@@ -70,9 +70,13 @@ public class ServerCommands {
         System.out.println("User has deleted from your friends.");
     }
 
+    static void newMessageMsg() {
+        System.out.println("You have new massage!");
+    }
+
     private static void initFriendResponse() {
-        processor.register("friend", (a) -> a
-                .description("add user to your friends or not?")
+        processor.register("friends", (a) -> a
+                .description("Add user to your friends or not?")
                 .subcommand("add", (b) -> b
                         .description("Add user to friends")
                         .executes((success) -> {
@@ -80,7 +84,7 @@ public class ServerCommands {
                         }))
                 .requireArgument("argumentName")
         );
-        processor.register("friend", (a) -> a
+        processor.register("friends", (a) -> a
                 .description("Delete friend")
                 .subcommand("del", (b) -> b
                         .executes((deletion) -> {
@@ -93,7 +97,7 @@ public class ServerCommands {
 
     private static void initRegisterResponse() {
         processor.register("register", (a) -> a
-                .description("s")
+                .description("Register message")
                 .subcommand("request", (b) -> b
                         .executes(ServerCommands::registerMsg))
         );
@@ -103,9 +107,22 @@ public class ServerCommands {
         processor.register("chat", (a) -> a
                 .description("Send id of open chat.")
                 .subcommand("fetch", (b) -> b
-                        .executes((id) -> {
-                            data.socket.sendMessage("/response chat" + id);
+                        .executes(() -> {
+                            data.socket.sendMessage("/response chat" + data.group.getIdGroup());
                         })
+                )
+        );
+        processor.register("chat", (a) -> a
+                .description("Add new message to unread.")
+                .subcommand("new", (b) -> b
+                        .executes((msg) -> {
+                            if (!data.group.getGroupName().equals(msg.getString("groupId"))) {
+                                data.client.addUnreadMsg(msg.getString("groupId"), msg.getString("message"));
+                                newMessageMsg();
+                            }
+                        })
+                        .requireArgument("groupId")
+                        .requireArgument("message")
                 )
         );
     }

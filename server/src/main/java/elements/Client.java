@@ -2,6 +2,9 @@ package elements;
 
 import network.SimpleSocket;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Репрезентация клиента со стороны сервера.
  * <br>Содержит в себе всю информацию о подключении,
@@ -18,6 +21,8 @@ public class Client {
     public User user = null;
 
     private final SimpleSocket socket;
+
+    public HashMap<String, ArrayList<String>> map = new HashMap<>(20);
 
     public Client(SimpleSocket socket) {
         this.socket = socket;
@@ -52,6 +57,12 @@ public class Client {
      */
     public String receiveMessage() throws IllegalStateException {
         return socket.receiveMessage();
+    }
+
+    public void addUnreadMsg(String groupName, Object msg) {
+//        Integer key = group.id;
+        ArrayList<String> unread = this.map.get(groupName);
+        unread.add(msg.toString());
     }
 
 }
