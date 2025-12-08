@@ -15,7 +15,7 @@ public class ServerCommands {
         System.out.println("you are logged out! Please, log in or register your account.");
     }
 
-    void friendAddMsg() {
+    private void friendAddMsg() {
         System.out.println("Your friend request is approved!");
     }
 
@@ -25,19 +25,21 @@ public class ServerCommands {
 
     private static void initFriendResponse() {
         processor.register("friends", (a) -> a
-                .description("Add user to your friends or not?")
+                .description("Friend request")
                 .subcommand("add", (b) -> b
                         .description("Add user to friends")
                         .executes((success) -> {
-                            System.out.println(success.getString("argumentName"));
+                            System.out.println("You receive a friend request from user "
+                                    + success.getString("argument"));
                         }))
-                .requireArgument("argumentName")
+                .requireArgument("argument")
         );
         processor.register("friends", (a) -> a
                 .description("Delete friend")
                 .subcommand("del", (b) -> b
                         .executes((deletion) -> {
-                            System.out.println(deletion.getString("argument"));
+                            System.out.println("User " + deletion.getString("argument")
+                                    + "deleted from your friends.");
                         })
                 ).requireArgument("argument")
         );
@@ -68,6 +70,9 @@ public class ServerCommands {
                             if (!Client.openChatId.equals(msg.getString("groupId"))) {
                                 Client.addUnreadMsg(msg.getString("groupId"), msg.getString("message"));
                                 newMessageMsg();
+                            } else {
+                                System.out.println(msg.getString("message"));
+                                Client.readMessage(msg.getString("groupId"));
                             }
                         })
                         .requireArgument("groupId")
@@ -75,13 +80,11 @@ public class ServerCommands {
                 )
         );
         processor.register("chat", (a) -> a
-                .description("User open chat with unread messages.")
-                .subcommand("read", (b) -> b
-                        .executes((msg) -> {
-                            Client.readMessage(msg.getString("groupId"));
-                        })
-                        .requireArgument("groupId")
-                )
+                .subcommand("open", (b) -> {})
+                .requireArgument("listMessages")
+                .executes((msg) -> {
+                    System.out.println(msg.getString("ListMessages"));
+                })
         );
     }
 
