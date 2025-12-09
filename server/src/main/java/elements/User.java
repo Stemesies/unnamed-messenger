@@ -95,15 +95,54 @@ public class User extends AbstractUser {
         return user;
     }
 
-    public static User logIn(StringPrintWriter out, String username, String password) {
-        var list = ServerData.getRegisteredUsers();
-        for (var u : list) {
-            if (u.getUserName().equals(username) && u.getPassword().equals(password)) {
-                out.printlnf("Logged in as %s.", u.getName());
-                return u;
-            }
+    public static void updateLastOnline(String username) {
+        String sql = "UPDATE users SET last_online = CURRENT_TIMESTAMP WHERE username = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error updating User`s last online: " + e.getMessage());
         }
-        out.println(Ansi.Colors.RED.apply("Invalid username or password."));
+    }
+
+    public static User logIn(StringPrintWriter out, String username, String password) {
+        String sql = "SELECT * FROM users WHERE username = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String storedPassword = rs.getString("password");
+                String salt = rs.getString("salt");
+                String inputPassword = getHash(password, salt);
+
+                if (storedPassword.equals(inputPassword)) {
+                    User user = new User(username, password);
+                    user.id = rs.getInt("id");
+
+                    // Обновляем время последнего входа
+                    updateLastOnline(user.name);
+
+                    out.printlnf("Logged in as %s.", user.name);
+                    return user;
+                } else {
+                    out.println(Ansi.Colors.RED.apply("Invalid password."));
+                }
+            } else {
+                out.println(Ansi.Colors.RED.apply("User not found."));
+            }
+
+        } catch (SQLException e) {
+            out.println(Ansi.Colors.RED.apply("Login error: " + e.getMessage()));
+        }
+
         return null;
     }
 
