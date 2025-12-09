@@ -7,8 +7,9 @@ import elements.User;
 import utils.Ansi;
 import utils.extensions.CollectionExt;
 
-public class ClientCommands {
+import managers.DatabaseManager;
 
+public class ClientCommands {
     public static class ClientContextData {
         public Client client;
         public User user;
@@ -34,9 +35,12 @@ public class ClientCommands {
         new CustomCommandProcessor<>();
 
     public static void init() {
+        // TODO: Заменить
         accountCategoryInit();
         friendsCategoryInit();
         groupsCategoryInit();
+
+        DatabaseManager.init();
     }
 
     private static void accountCategoryInit() {

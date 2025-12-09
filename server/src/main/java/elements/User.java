@@ -5,7 +5,13 @@ import utils.StringPrintWriter;
 import utils.extensions.CollectionExt;
 import utils.extensions.StringExt;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import managers.DatabaseManager;
 
 public class User extends AbstractUser {
 
@@ -18,6 +24,57 @@ public class User extends AbstractUser {
         this.id = username.hashCode();
     }
 
+    public static boolean userExists(String username) {
+        String sql = "SELECT EXISTS(SELECT 1 FROM users WHERE username = ?)";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getBoolean(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static String getSalt() {
+        // TODO: добавить создание соли
+        return "1";
+    }
+
+    public static String getHash(String password, String salt) {
+        // TODO: добавить получение хеша
+        return password;
+    }
+
+    public static void addUser(User user) {
+        String sql = "INSERT INTO users (username, name, password, salt)\n"
+                + "VALUES (?, ?, ?, ?);";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, user.userName);
+            stmt.setString(2, user.userName);
+
+            String salt = getSalt();
+            String password = getHash(user.password, salt);
+
+            stmt.setString(3, password);
+            stmt.setString(4, salt);
+
+            stmt.executeQuery();
+
+        } catch (SQLException e) {
+            System.err.println("Error adding User: " + e.getMessage());
+        }
+    }
+
     public static User register(StringPrintWriter out, String username, String password) {
         if (username.length() > ServerData.MAX_USERNAME_LENGTH) {
             out.println(Ansi.Colors.RED.apply(
@@ -26,15 +83,14 @@ public class User extends AbstractUser {
             return null;
         }
 
-        var list = ServerData.getRegisteredUsers();
-        for (var u : list) {
-            if (u.getUserName().equals(username)) {
-                out.println(Ansi.Colors.RED.apply("Username is already in use."));
-                return null;
-            }
+        if (userExists(username)) {
+            out.println(Ansi.Colors.RED.apply("Username is already in use."));
+            return null;
         }
+
         var user = new User(username, password);
         out.println("Registered successfully.");
+        addUser(user);
         ServerData.addUser(user);
         return user;
     }
