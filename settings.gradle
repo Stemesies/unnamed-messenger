@@ -1,4 +1,4 @@
-rootProject.name = 'UntitledMessanger'
+rootProject.name = 'NeMAX'
 include 'server'
 include 'client'
 include 'utils'

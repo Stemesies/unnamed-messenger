@@ -1,5 +1,5 @@
 <div id="user-content-toc"><ul><summary><h1>
-  <вставьте название>
+  NeMAX
 </h1></summary></ul></div>
     
 _Небольшой централизованный мессенджер, написанный на Java_
