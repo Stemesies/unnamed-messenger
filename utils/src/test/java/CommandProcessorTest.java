@@ -62,6 +62,39 @@ public class CommandProcessorTest {
         Assertions.assertEquals(COMMAND_NOT_FOUND, processor.getLastError().type);
     }
 
+    @Test
+    public void invisibleCommand() {
+        var processor = new CommandProcessor();
+
+        processor.register("invisible", (rc) -> rc
+            .isInvisible()
+            .executes(()->{})
+        );
+
+        processor.register("invisible2", (rc) -> rc
+            .isInvisible()
+            .requireArgument("arg1")
+            .subcommand("sub", it -> it
+                .executes(() -> {})
+            )
+        );
+
+        Assertions.assertTrue(execute(processor, "/invisible"));
+
+        Assertions.assertFalse(execute(processor, "/invisible amogus"));
+        Assertions.assertEquals(COMMAND_NOT_FOUND, processor.getLastError().type);
+
+        Assertions.assertTrue(execute(processor, "/invisible2 a sub"));
+
+        Assertions.assertFalse(execute(processor, "/invisible2 a"));
+        Assertions.assertEquals(COMMAND_NOT_FOUND, processor.getLastError().type);
+
+        Assertions.assertFalse(execute(processor, "/invisible2 sub"));
+        Assertions.assertEquals(COMMAND_NOT_FOUND, processor.getLastError().type);
+
+
+    }
+
     /**
      * Идет проверка на правильной работы суб-команд.
      */
@@ -487,6 +520,157 @@ public class CommandProcessorTest {
 
         Assertions.assertTrue(execute(processor, "/optionalArgument whywwww aaa owo"));
         Assertions.assertEquals("whywwwwaaa", a.get());
+    }
+
+    @Test
+    public void invalidArrayArgument() {
+        var processor = new CommandProcessor();
+
+        Assertions.assertThrowsExactly(IllegalStateException.class, ()->{
+            processor.register("base", (rc) -> rc
+                .requireArgument("arg")
+                .requireArrayArgument("argArr")
+                .requireArgument("arg2")
+            );
+        });
+        Assertions.assertThrowsExactly(IllegalStateException.class, ()->{
+            processor.register("base", (rc) -> rc
+                .requireArgument("arg")
+                .requireArrayArgument("argArr")
+                .findArgument("arg2")
+            );
+        });
+        Assertions.assertThrowsExactly(IllegalStateException.class, ()->{
+            processor.register("base", (rc) -> rc
+                .requireArgument("arg")
+                .requireArrayArgument("argArr")
+                .requireArrayArgument("argArr2")
+            );
+        });
+        Assertions.assertThrowsExactly(IllegalStateException.class, ()->{
+            processor.register("base", (rc) -> rc
+                .findArgument("arg")
+                .requireArrayArgument("argArr")
+            );
+        });
+    }
+
+    @Test
+    public void arrayArgument() {
+        var processor = new CommandProcessor();
+        AtomicReference<String> a = new AtomicReference<>("");
+        processor.register("base", (rc) -> rc
+            .requireArrayArgument("arg")
+            .executes((ctx)->
+                ctx.getArray("arg")
+                    .forEach((it) -> a.set(a.get() + " " + it)))
+        );
+        Assertions.assertTrue(execute(processor, "/base"));
+        Assertions.assertEquals("", a.get());
+        a.set("");
+
+        Assertions.assertTrue(execute(processor, "/base arg1"));
+        Assertions.assertEquals(" arg1", a.get());
+        a.set("");
+
+        Assertions.assertTrue(execute(processor, "/base arg1 arg2"));
+        Assertions.assertEquals(" arg1 arg2", a.get());
+        a.set("");
+    }
+
+    @Test
+    public void invalidContextArgumentsUse() {
+        var processor = new CommandProcessor();
+        AtomicReference<String> a = new AtomicReference<>("");
+        processor.register("base1", (rc) -> rc
+            .requireArrayArgument("arg")
+            .executes((ctx)->
+                a.set(ctx.getString("arg"))
+            ));
+        processor.register("base2", (rc) -> rc
+            .requireArgument("arg")
+            .executes((ctx)->
+                ctx.getArray("arg")
+                    .forEach((it) -> a.set(a.get() + " " + it)))
+            );
+        processor.register("base3", (rc) -> rc
+            .requireArgument("arg")
+            .executes((ctx)->
+                a.set(ctx.getString("arg"))
+            ));
+        processor.register("base4", (rc) -> rc
+            .requireArrayArgument("arg")
+            .executes((ctx)->
+                ctx.getArray("arg")
+                    .forEach((it) -> a.set(a.get() + " " + it)))
+        );
+
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, ()->
+            processor.execute("/base1")
+        );
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, ()->
+            processor.execute("/base2 a")
+        );
+
+        Assertions.assertTrue(execute(processor, "/base3 arg1"));
+        Assertions.assertEquals("arg1", a.get());
+        a.set("");
+
+        Assertions.assertFalse(execute(processor, "/base3 arg1 arg2"));
+        Assertions.assertEquals(UNKNOWN_SUBCOMMAND, processor.getLastError().type);
+        a.set("");
+
+        Assertions.assertTrue(execute(processor, "/base4 arg1"));
+        Assertions.assertEquals(" arg1", a.get());
+        a.set("");
+        Assertions.assertTrue(execute(processor, "/base4 arg1 arg2"));
+        Assertions.assertEquals(" arg1 arg2", a.get());
+        a.set("");
+    }
+
+    @Test
+    public void arrayArgumentSubcommand() {
+        var processor = new CommandProcessor();
+        AtomicReference<String> a = new AtomicReference<>("");
+        processor.register("base", (rc) -> rc
+            .requireArrayArgument("arg")
+            .subcommand("sub", (sb) -> sb
+                .executes((ctx)->
+                    ctx.getArray("arg")
+                        .forEach((it) -> a.set(a.get() + " " + it)))
+            )
+        );
+        Assertions.assertFalse(execute(processor, "/base"));
+        Assertions.assertEquals(FURTHER_SUBCOMMANDS_EXPECTED, processor.getLastError().type);
+        a.set("");
+
+        Assertions.assertFalse(execute(processor, "/base arg1"));
+        Assertions.assertEquals(FURTHER_SUBCOMMANDS_EXPECTED, processor.getLastError().type);
+        a.set("");
+
+        Assertions.assertFalse(execute(processor, "/base arg1 arg2"));
+        Assertions.assertEquals(FURTHER_SUBCOMMANDS_EXPECTED, processor.getLastError().type);
+        a.set("");
+
+        Assertions.assertFalse(execute(processor, "/base arg1 arg2 arg3"));
+        Assertions.assertEquals(FURTHER_SUBCOMMANDS_EXPECTED, processor.getLastError().type);
+        a.set("");
+
+        Assertions.assertFalse(execute(processor, "/base arg1 arg2 arg3 \"sub\""));
+        Assertions.assertEquals(FURTHER_SUBCOMMANDS_EXPECTED, processor.getLastError().type);
+        a.set("");
+
+        Assertions.assertTrue(execute(processor, "/base sub"));
+        Assertions.assertEquals("", a.get());
+        a.set("");
+
+        Assertions.assertTrue(execute(processor, "/base arg1 sub"));
+        Assertions.assertEquals(" arg1", a.get());
+        a.set("");
+
+        Assertions.assertTrue(execute(processor, "/base arg1 arg2 sub"));
+        Assertions.assertEquals(" arg1 arg2", a.get());
+        a.set("");
     }
 
 }
