@@ -1,15 +1,11 @@
-import cli.CustomCommandProcessor;
+import cli.CommandProcessor;
 import elements.Client;
 import elements.ServerConnectManager;
 
 @SuppressWarnings("checkstyle:LineLength")
 public class ServerCommands {
 
-    public static class ServerContextData {
-
-    }
-
-    public static final CustomCommandProcessor<ServerContextData> processor = new CustomCommandProcessor<>();
+    public static final CommandProcessor processor = new CommandProcessor();
 
     private static void registerMsg() {
         System.out.println("you are logged out! Please, log in or register your account.");
