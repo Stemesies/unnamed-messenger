@@ -56,7 +56,7 @@ public class Command {
         return base.equals(token.content());
     }
 
-    public static Builder create(String baseCommand) {
+    public static Builder create(String baseCommand) throws IllegalArgumentException {
         return new Builder(baseCommand);
     }
 
@@ -172,11 +172,43 @@ public class Command {
     }
 
     // -------
-    
+
+    /**
+     * Класс, позволяющий при исполнении проверок и/или исполнении самой команды
+     * обращаться к различным внешним переменным.<br>
+     * <br>
+     * На данный момент реализовано следующее:
+     * <ul>
+     * <li>{@link Context#out}</li>
+     * <li>{@link Context#hasArgument(String key)}</li>
+     * <li>{@link Context#getString(String)}</li>
+     * <li>{@link Context#getArray(String)}</li>
+     * </ul>
+     * TODO:
+     */
     public static class Context {
-        
-        public StringPrintWriter out;
-        public HashMap<String, Object> arguments = new HashMap<>();
+
+        /**
+         * "Поток" вывода команды, {@link CommandProcessor#getOutput() который можно получить позже}
+         * <br>Логи сюда писать не стоит.
+         *
+         * <pre><code>
+         *     .register("someCommand", ...
+         *     ...
+         *     .executes((ctx)-> {
+         *         //Какие-нибудь действия
+         *         ctx.out.println("Успешно выполнено!")
+         *     })
+         * </code></pre>
+         *
+         * <pre><code>
+         *     processor.execute("/someCommand")
+         *     System.out.println(processor.getOutput())
+         *     > Успешно выполнено!
+         * </code></pre>
+         */
+        public final StringPrintWriter out;
+        private final HashMap<String, Object> arguments = new HashMap<>();
 
         String command;
         AbstractUser user;
@@ -215,10 +247,72 @@ public class Command {
             return getToken(position++);
         }
 
+        /**
+         * Проверяет, вводил ли пользователь аргумент argumentName.
+         * <br>Данным методом проверять стоит только опциональные аргументы.
+         * <br>(см. {@link Builder#findArgument(String) запрос опционального аргумента})
+         *
+         * <pre><code>
+         *     .registerCommand("hello", (a)->a
+         *         .findArgument("username")
+         *         .executes((ctx)->{
+         *             if(ctx.hasArgument("username")) {
+         *                 ctx.out.println("Hello, " + ctx.getString("username"));
+         *             } else {
+         *                 ctx.out.println("Hello!")
+         *             }
+         *         })
+         *     )
+         * </code></pre>
+         *
+         * <pre><code>
+         *      > /hello Buteo
+         *      Hello, Buteo
+         *      > /hello Flory
+         *      Hello, Flory
+         *      > /hello
+         *      Hello!
+         * </code></pre>
+         *
+         * @param argumentName название проверяемого аргумента.
+         * @return <code>true</code>, если аргумент был введен
+         *     <br><code>false</code> - если не был
+         *
+         * @see #getString(String)
+         * @see #out
+         */
         public boolean hasArgument(String argumentName) {
             return arguments.containsKey(argumentName);
         }
 
+        /**
+         * Получает введенный пользователем аргумент.
+         *
+         * <pre><code>
+         *     .registerCommand("hello", (a)->a
+         *         .requireArgument("username")
+         *         .executes((ctx)->{
+         *              ctx.out.println("Hello, " + ctx.getString("username"));
+         *         })
+         *     )
+         * </code></pre>
+         *
+         * <pre><code>
+         *      > /hello Buteo
+         *      Hello, Buteo
+         *      > /hello Flory
+         *      Hello, Flory
+         *      > /hello Stemie
+         *      Hello, Stemie
+         * </code></pre>
+         *
+         * @param argumentName название получаемого аргумента
+         * @return значение получаемого аргумента
+         * @throws NoSuchElementException если применен к отсутствующему опциональному аргументу.
+         *      <br>Чтобы избежать ошибок, см. {@link #hasArgument(String)}
+         * @throws IllegalArgumentException если применен к массиву аргументов.
+         *      <br>Чтобы избежать ошибок, см. {@link #getArray(String)}
+         */
         public String getString(String argumentName)
             throws NoSuchElementException, IllegalArgumentException {
             var argument = arguments.get(argumentName);
@@ -233,13 +327,46 @@ public class Command {
             );
         }
 
+        /**
+         * Получает введенный пользователем массив аргументов.
+         *
+         * <pre><code>
+         *     .registerCommand("hello", (a)->a
+         *         .requireArrayArgument("usernames")
+         *         .executes((ctx)->{
+         *              if(ctx.getArray("usernames").isEmpty()) {
+         *                  ctx.println("Hello!")
+         *              } else {
+         *                  ctx.print("Hello")
+         *                  ctx.getArray("usernames").forEach((it)->{
+         *                      ctx.print(", " + it)
+         *                  })
+         *                  ctx.println()
+         *              }
+         *         })
+         *     )
+         * </code></pre>
+         *
+         * <pre><code>
+         *      > /hello
+         *      Hello!
+         *      > /hello Buteo
+         *      Hello, Buteo
+         *      > /hello Flory Stemie
+         *      Hello, Flory, Stemie
+         *      > /hello a b c d e f
+         *      Hello, a, b, c, d, e, f
+         * </code></pre>
+         *
+         * @param argumentName название получаемого массива аргументов
+         * @return список введенных аргументов
+         * @throws IllegalArgumentException если применен к обычному аргументу.
+         *      <br>Чтобы избежать ошибок, см. {@link #getString(String)}
+         */
         public List<String> getArray(String argumentName)
-            throws NoSuchElementException, IllegalArgumentException {
+            throws IllegalArgumentException {
             var argument = arguments.get(argumentName);
             switch (argument) {
-                case null -> throw new NoSuchElementException(
-                    "No arguments with name \"" + argumentName + "\" found."
-                );
                 case Token ignored -> throw new IllegalArgumentException(
                     "Tried to read String from Array argument \"" + argumentName + "\".");
                 case Object[] tokenArrayList -> {
@@ -248,7 +375,7 @@ public class Command {
                         .map(Token::content)
                         .toList();
                 }
-                default -> throw new IllegalArgumentException("?");
+                default -> throw new IllegalArgumentException("I fu##ed up somehow.");
             }
 
 
@@ -303,14 +430,22 @@ public class Command {
         boolean isInvisible = false;
         boolean isBase = true;
 
-        public Builder(String baseCommand) {
+        public Builder(String baseCommand) throws IllegalArgumentException {
+            if (baseCommand.isEmpty())
+                throw new IllegalArgumentException("Empty command.");
+            if (baseCommand.charAt(0) == '/')
+                throw new IllegalArgumentException(
+                    "Whooptie, seems like you accidentally added '/' to the beginning."
+                    + "Don't do that :3"
+                );
+
             this.baseCommand = baseCommand;
         }
 
         /**
          * Позволяет заявить команде /help, что данная команда существует.
          * При этом ее нельзя будет вызвать:
-         * процессор будет выдавать ошибку {@link CommandResults#PHANTOM_COMMAND}.
+         * процессор будет выдавать особую ошибку {@link CommandResults#PHANTOM_COMMAND}.
          * <br>
          * <br> !! Данный метод не должен применяться к суб-командам !!
          *
@@ -328,9 +463,7 @@ public class Command {
         /**
          * Позволяет заявить команде /help, что данная команда существует.
          * При этом ее нельзя будет вызвать:
-         * процессор будет выдавать ошибку {@link CommandResults#PHANTOM_COMMAND}.
-         * <br>
-         * <br> !! Данный метод не должен применяться к суб-командам !!
+         * процессор будет выдавать особую ошибку {@link CommandResults#PHANTOM_COMMAND}.
          *
          * @throws IllegalStateException Если метод был применен к суб-командам.
          */
@@ -339,11 +472,10 @@ public class Command {
         }
 
         /**
-         * Позволяет заявить команде /help, что данная команда отсутствует.<br>
+         * Позволяет заявить команде /help, что данная команда отсутствует,
+         * даже если она зарегистрирована.<br>
          * При этом, если команда написана неправильно, будет высвечиваться ошибка
          * {@link CommandResults#COMMAND_NOT_FOUND}
-         * <br>
-         * <br> !! Данный метод не должен применяться к суб-командам !!
          *
          * @throws IllegalStateException Если метод был применен к суб-командам.
          */
@@ -356,6 +488,30 @@ public class Command {
             return this;
         }
 
+        /**
+         * Устанавливает описание команды или суб-команды.
+         * <pre><code>
+         *     .register("someCommand", (a)->
+         *         .description("some description~")
+         *         .executes(()->{})
+         *         .subcommand("subcommand", (a) ->
+         *              .description("some subcommand description~")
+         *              .executes(()->{})
+         *         )
+         *     );
+         * </code></pre>
+         * <pre><code>
+         *     > /help
+         *     ...
+         *     /someCommand - some description~
+         *     ...
+         *     > /help someCommand
+         *     /someCommand - some description~
+         *     /someCommand subcommand - some subcommand description~
+         * </code></pre>
+         *
+         * @param helpDescription описание
+         */
         public Builder description(String helpDescription) {
             this.helpDescription = helpDescription;
             return this;
@@ -385,28 +541,32 @@ public class Command {
          * <br>
          * <br>Пример:
          * <pre><code>
-         * proc.registerCommand("groups", (it)->it
-         *     .subcommand("invite" (it1)->it1
-         *         .requireArgument(username)
-         *         .executes(()->{})
-         *      )
+         * proc.registerCommand("invite", (a)->a
+         *     .requireArgument("username")
+         *     .executes((ctx)->{
+         *         ctx.out.println(ctx.getString("username"))
+         *     })
          * );
          * </code></pre>
          * <pre><code>
-         * > /groups invite Flory
-         * (Выполнение успешно)
+         * > /invite Flory
+         * Flory
+         * > /invite
+         * Missing required argument <username>.
+         * /invite________
+         *        ^^^^^^^^
          * </code></pre>
-         * <pre><code>
-         * > /groups invite
-         * Missing required argument <username>."
-         * /groups invite________
-         *               ^^^^^^^^
-         * </code></pre>
+         * <br>
+         * Советую хорошо называть аргументы, так как <code>name</code> будет выводиться
+         * при вызове /help.
          *
-         * @param name название аргумента. Будет писаться при генерации help экземпляра команды.
-         *             Также необходимо для доступа к аргументу.
+         * @param name название аргумента
+         * @throws IllegalStateException если вызвано после запроса опционального аргумента
+         *      или массива аргументов
+         *
+         * @see Context#getString(String) получение запрашиваемых аргументов
          */
-        public Builder requireArgument(String name) {
+        public Builder requireArgument(String name) throws IllegalStateException {
             if (!arguments.isEmpty() && arguments.getLast().isOptional)
                 throw new IllegalStateException("Non-isOptional argument after optional.");
             if (!arguments.isEmpty() && arguments.getLast().isArray)
@@ -416,18 +576,80 @@ public class Command {
             return this;
         }
 
+        /**
+         * Позволяет захватить следующие n токенов, пока не будет встречена суб-команда
+         * или не кончится команда.
+         * <br>
+         * <br>Пример:
+         * <pre><code>
+         * proc.registerCommand("invite", (a)->a
+         *     .requireArrayArgument("usernames")
+         *     .executes((ctx)->{
+         *         ctx.out.println(ctx.getArray("usernames"))
+         *     })
+         * );
+         * </code></pre>
+         * <pre><code>
+         * > /invite
+         * []
+         * > /invite Flory
+         * [Flory]
+         * > /invite Flory Buteo Stemie
+         * [Flory, Buteo, Stemie]
+         * </code></pre>
+         * <br>
+         * Советую хорошо называть аргументы, так как <code>name</code> будет выводиться
+         * при вызове /help.
+         *
+         * @param name название массива аргументов
+         * @throws IllegalStateException если вызвано после запроса опционального аргумента
+         *      или массива аргументов
+         *
+         * @see Context#getArray(String) получение запрашиваемых аргументов
+         */
         public Builder requireArrayArgument(String name) {
-            if (!arguments.isEmpty() && arguments.getLast().isOptional)
-                throw new IllegalStateException("Can't add Array argument after optional.");
             if (!arguments.isEmpty() && arguments.getLast().isArray)
                 throw new IllegalStateException("Can't specify arguments after Array argument");
-
 
             arguments.add(new Argument(name, false, true));
             return this;
         }
 
+        /**
+         * Позволяет захватить следующий токен команды как аргумент.<br>
+         * Данный токен может отсутствовать.
+         * <br>
+         * <br>Пример:
+         * <pre><code>
+         * proc.registerCommand("invite", (a)->a
+         *     .findArgument("username")
+         *     .executes((ctx)->{
+         *         ctx.out.println(ctx.getString("username"))
+         *     })
+         * );
+         * </code></pre>
+         * <pre><code>
+         * > /invite
+         * NoSuchElementException: blah blah blah
+         *        at Context.getString(String argumentName)
+         *        at blah blah
+         *        at blah blah blah
+         * > /invite Flory
+         * Flory
+         * </code></pre>
+         * <br>
+         * Советую хорошо называть аргументы, так как <code>name</code> будет выводиться
+         * при вызове /help.
+         *
+         * @param name название аргумента
+         * @throws IllegalStateException если вызвано после запроса массива аргументов
+         *
+         * @see Context#hasArgument(String) проверка на наличие аргумента
+         * @see Context#getString(String) получение запрашиваемых аргументов
+         */
         public Builder findArgument(String name) {
+            if (!arguments.isEmpty() && arguments.getLast().isOptional)
+                throw new IllegalStateException("Can't specify arguments after Array argument");
             if (!arguments.isEmpty() && arguments.getLast().isArray)
                 throw new IllegalStateException("Can't specify arguments after Array argument");
 
@@ -435,6 +657,49 @@ public class Command {
             return this;
         }
 
+        /**
+         * Отделяет ветку от текущей команды с заданным именем.<br>
+         * <br>
+         * Пример:
+         * <pre><code>
+         *     .register("base", (a)->a
+         *          .subcommand("subcommand1" (b)->b
+         *              .executes(()->{})
+         *          )
+         *          .subcommand("subcommand2" (b)->b
+         *              .executes(()->{})
+         *          )
+         *     )
+         * </code></pre>
+         * <pre><code>
+         *     > /base
+         *     Further subcommands expected
+         *     /base__________
+         *          ^^^^^^^^^^
+         *     > /base subcommand1
+         *     > /base subcommand2
+         *     > /base subcommand3
+         *     Unknown subcommand
+         *     /base subcommand3
+         *           ^^^^^^^^^^^
+         * </code></pre>
+         * Для работы команды <code>/base</code> добавьте рядом с декларациями субкоманд executes
+         * <pre><code>
+         * .register("base", (a)->a
+         *     .executes(()->{})
+         *     .subcommand("subcommand1" (b)->b
+         *         ...
+         *     ...
+         * )
+         * </code></pre>
+         * <pre><code>
+         *     > /base
+         *     > /base subcommand1
+         *     > /base subcommand2
+         * </code></pre>
+         *
+         * @throws IllegalArgumentException если суб-команда с этим названием уже есть
+         */
         public Builder subcommand(String subcommand, Apply<Builder> subcommandSettings)
             throws IllegalArgumentException {
 
@@ -459,7 +724,20 @@ public class Command {
          * Устанавливает действие, которое будет воспроизводиться
          * при успешном выполнении команды.
          *
-         * @param action Проверки и действия
+         * <pre><code>
+         *     .register("command", (a)->a
+         *         .executes(()->{
+         *             System.out.println("Hola.")
+         *         })
+         *     );
+         * </code></pre>
+         * <pre><code>
+         *     > /command
+         *     Hola.
+         * </code></pre>
+         * Выводить в System.out не стоит. Код написан для примера.<br>
+         * См. {@link #executes(Apply)}
+         *
          * @throws IllegalStateException Если команда фантомная
          */
         public Builder executes(Runnable action) throws IllegalStateException {
@@ -473,9 +751,23 @@ public class Command {
 
         /**
          * Устанавливает действие, которое будет воспроизводиться
-         * при успешном выполнении команды.
+         * при успешном выполнении команды.<br>
+         * Дает доступ к {@link Context контексту} команды
          *
-         * @param action проверки и действия
+         * <pre><code>
+         *     .register("command", (a)->a
+         *         .executes((ctx)->{
+         *             ctx.out.println("Hola.")
+         *             ctx.out.println(ctx.hasArgument("arg"))
+         *         })
+         *     );
+         * </code></pre>
+         * <pre><code>
+         *     > /command
+         *     Hola.
+         *     false
+         * </code></pre>
+         *
          * @throws IllegalStateException Если команда фантомная
          */
         public Builder executes(Apply<Context> action) throws IllegalStateException {

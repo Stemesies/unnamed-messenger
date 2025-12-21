@@ -12,7 +12,7 @@ import static cli.CommandResults.NOT_A_COMMAND;
 
 public class CommandProcessor {
 
-    private StringPrintWriter output = new StringPrintWriter();
+    private final StringPrintWriter output = new StringPrintWriter();
     private CommandResult lastError = null;
     private final ArrayList<Command> registeredCommands = new ArrayList<>();
 
@@ -49,7 +49,7 @@ public class CommandProcessor {
     }
 
     public void register(String command, ApplyStrict<Command.Builder> action)
-        throws IllegalStateException {
+        throws IllegalStateException, IllegalArgumentException {
 
         var c = Command.create(command);
         action.run(c);
