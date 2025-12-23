@@ -127,12 +127,19 @@ public class ClientCommands {
             )
             .subcommand("request", (b) -> b
                 .description("Отправка запроса на дружбу пользователю @username")
+                    .subcommand("cancel", (d) -> d
+                            .description("Отзыв отправленного запроса на дружбу пользователю "
+                                    + "@username")
+                            .executes((ctx) -> ctx.data.user
+                                    .dismissFriendRequest(ctx.getString("username"))
+                            )
+                    )
                 .requireArgument("username")
                 .executes((ctx) -> ctx.data.user
                     .sendFriendRequest(ctx.getString("username"))
                 )
             )
-            .subcommand("request", (b) -> b
+            .subcommand("request cancel", (b) -> b
                 .description("Отзыв отправленного запроса на дружбу пользователю @username")
                 .requireArgument("username")
                 .executes((ctx) -> ctx.data.user

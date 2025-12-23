@@ -36,20 +36,16 @@ public class ServerCommands {
                         .description("Add user to friends")
                         .executes((success) -> {
                             System.out.println("You receive a friend request from user "
-                                    + success.getString("argument"));
-                        }))
-                .requireArgument("argument")
-        );
-        processor.register("friends", (a) -> a
-                .description("Delete friend")
-                .subcommand("del", (b) -> b
+                                    + success.getString("argument1"));
+                        })
+                ).requireArgument("argument1")
+                .subcommand("del", (d) -> d
                         .executes((deletion) -> {
-                            System.out.println("User " + deletion.getString("argument")
+                            System.out.println("User " + deletion.getString("argument2")
                                     + "deleted from your friends.");
                         })
-                ).requireArgument("argument")
+                )
         );
-
     }
 
     /**
@@ -71,14 +67,9 @@ public class ServerCommands {
         processor.register("chat", (a) -> a
                 .description("Send id of open chat.")
                 .subcommand("fetch", (b) -> b
-                        .executes((c) -> {
-                            ServerConnectManager.socket.sendMessage("/response chat " + Client.openChatId);
-                        })
-                )
-        );
-        processor.register("chat", (a) -> a
-                .description("Add new message to unread.")
-                .subcommand("new", (b) -> b
+                        .executes((c) -> ServerConnectManager.socket.sendMessage("/response chat " + Client.openChatId))
+
+                .subcommand("new", (d) -> d
                         .executes((msg) -> {
                             if (!Client.openChatId.equals(msg.getString("groupId"))) {
                                 Client.addUnreadMsg(msg.getString("groupId"), msg.getString("message"));
@@ -88,16 +79,12 @@ public class ServerCommands {
                                 Client.readMessage(msg.getString("groupId"));
                             }
                         })
-                        .requireArgument("groupId")
-                        .requireArgument("message")
-                )
-        );
-        processor.register("chat", (a) -> a
-                .subcommand("open", (b) -> {})
-                .requireArgument("listMessages")
-                .executes((msg) -> {
-                    System.out.println(msg.getString("ListMessages"));
-                })
+                ))
+                .subcommand("open", (b) -> b
+                        .requireArgument("listMessages")
+                        .executes((msg) -> {
+                            System.out.println(msg.getString("ListMessages"));
+                        }))
         );
     }
 
