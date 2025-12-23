@@ -139,13 +139,6 @@ public class ClientCommands {
                     .sendFriendRequest(ctx.getString("username"))
                 )
             )
-            .subcommand("request cancel", (b) -> b
-                .description("Отзыв отправленного запроса на дружбу пользователю @username")
-                .requireArgument("username")
-                .executes((ctx) -> ctx.data.user
-                    .dismissFriendRequest(ctx.getString("username"))
-                )
-            )
             .subcommand("accept", (b) -> b
                 .description(
                     "Принятие запроса на дружбу от @username, либо,"
