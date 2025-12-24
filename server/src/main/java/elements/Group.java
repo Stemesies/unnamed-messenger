@@ -20,8 +20,6 @@ public class Group extends AbstractGroup {
         this.name = name;
         this.id = groupname.hashCode();
         this.owner = owner;
-        this.admins.add(this.owner);
-        this.members.add(this.owner);
     }
 
     @Override
@@ -52,9 +50,9 @@ public class Group extends AbstractGroup {
         return false;
     }
 
-    public static void addGroup(User owner, Group group) {
-        String sql = "INSERT INTO groups (groupname, name, type, members, admins, owner_id)\n"
-                + "VALUES (?, ?, ?, ?, ?, ?);";
+    public static void addGroup(int ownerId, Group group) {
+        String sql = "INSERT INTO groups (groupname, name, type, owner_id)\n"
+                + "VALUES (?, ?, ?, ?);";
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -62,13 +60,7 @@ public class Group extends AbstractGroup {
             stmt.setString(1, group.groupname);
             stmt.setString(2, group.groupname);
             stmt.setInt(3, 0);
-
-            Integer[] membersArray = {owner.id};
-            Array members = conn.createArrayOf("INTEGER", membersArray);
-
-            stmt.setArray(4, members);
-            stmt.setArray(5, members);
-            stmt.setInt(6, owner.id);
+            stmt.setInt(4, ownerId);
 
             stmt.executeUpdate();
 
@@ -92,8 +84,10 @@ public class Group extends AbstractGroup {
             return null;
         }
         Group group = new Group(owner.getUserId(), groupname, name);
+        addGroup(owner.getUserId(), group);
+        group = getGroupByName(groupname);
+        addMember(group.getIdGroup(), owner.getUserName(), true);
         out.println("Registered successfully.");
-        addGroup(owner, group);
         ServerData.addGroup(group);
 
         return group;
@@ -115,13 +109,11 @@ public class Group extends AbstractGroup {
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                int owner = rs.getInt(7);
-                String name = rs.getString(3);
+                int owner = rs.getInt("owner_id");
+                String name = rs.getString("groupname");
                 Group group = new Group(owner, groupname, name);
 
-                group.id = rs.getInt(1);
-                group.members = getArrayListFromPgArray(rs.getArray(5));
-                group.admins = getArrayListFromPgArray(rs.getArray(6));
+                group.id = rs.getInt("id");
 
                 return group;
             }
@@ -132,16 +124,17 @@ public class Group extends AbstractGroup {
         return null;
     }
 
-    public void addMember(String username) {
-        String sql = "UPDATE groups SET members = array_append(members, ?) WHERE id = ?";
+    public static void addMember(int groupId, String username, boolean isAdmin) {
+        String sql = "INSERT INTO group_members (group_id, user_id, is_admin) VALUES (?, ?, ?)";
 
         int id = User.getUserIdByUsername(username);
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
-            stmt.setInt(2, this.id);
+            stmt.setInt(1, groupId);
+            stmt.setInt(2, id);
+            stmt.setBoolean(3, isAdmin);
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -149,12 +142,33 @@ public class Group extends AbstractGroup {
         }
     }
 
-    public void invite(StringPrintWriter out, String username) {
+    public List<Integer> getMembersId() {
+        List<Integer> members = new ArrayList<>();
+        String sql = "SELECT * FROM group_members WHERE group_id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, this.id);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                members.add(rs.getInt("user_id"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error getting Members: " + e.getMessage());
+        }
+
+        return members;
+    }
+
+    public void invite(StringPrintWriter out, String username, int groupId) {
         if (!User.userExists(username)) {
             out.println(Ansi.Colors.RED.apply("User not found."));
             return;
         }
-        addMember(username);
+        addMember(groupId, username, false);
         out.println(username + " invited to " + name);
     }
 
@@ -172,7 +186,7 @@ public class Group extends AbstractGroup {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            System.err.println("Error adding Group: " + e.getMessage());
+            System.err.println("Error adding Message: " + e.getMessage());
         }
     }
 
@@ -191,7 +205,7 @@ public class Group extends AbstractGroup {
             }
 
         } catch (SQLException e) {
-            System.err.println("Error adding Group: " + e.getMessage());
+            System.err.println("Error getting Messages: " + e.getMessage());
         }
 
         return messages;

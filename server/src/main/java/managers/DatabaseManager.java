@@ -70,12 +70,20 @@ public class DatabaseManager {
                  groupname  VARCHAR(32) NOT NULL ,
                  name VARCHAR(32) ,
                  type SMALLINT CHECK (type >= 0 AND type <= 3) NOT NULL ,
-                 members INTEGER[] NOT NULL ,
-                 admins INTEGER[] NOT NULL ,
                  owner_id INTEGER NOT NULL REFERENCES users(id) ,
                  messages INTEGER[]
              );
                \s""",
+                // Таблица участников групп
+            """
+            CREATE TABLE IF NOT EXISTS group_members (
+                 group_id INTEGER NOT NULL REFERENCES groups(id) ON DELETE CASCADE ,
+                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE ,
+                 is_admin BOOLEAN DEFAULT FALSE ,
+                 joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,
+                 PRIMARY KEY (group_id, user_id)
+            );
+              \s""",
                 // Таблица сообщений
             """
             CREATE TABLE IF NOT EXISTS messages

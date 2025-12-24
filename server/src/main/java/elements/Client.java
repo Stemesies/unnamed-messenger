@@ -89,7 +89,7 @@ public class Client {
         Message messageContent = new Message(0, chatMessage, user.getUserId(), null);
         group.messages.add(messageContent);
         group.addMessage(messageContent);
-        for (var u : group.members) {
+        for (var u : group.getMembersId()) {
             var client = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user.id == u);
             if (client == null)
                 continue;

@@ -131,7 +131,7 @@ public class ClientCommands {
                 }
                 Group group = Group.getGroupByName(groupname);
                 if (CollectionExt.findBy(
-                    Objects.requireNonNull(group).getMembers(),
+                    Objects.requireNonNull(group).getMembersId(),
                     (it) -> it.equals(ctx.data.client.user.getUserId())
                 ) == null) {
                     ctx.out.println(Ansi.Colors.RED.apply("You are not a member of that group."));
@@ -221,7 +221,8 @@ public class ClientCommands {
             .subcommand("invite", (b) -> b
                 .requireArgument("username")
                 .executes((ctx) -> {
-                    ctx.data.group.invite(ctx.out, ctx.getString("username"));
+                    ctx.data.group.invite(ctx.out, ctx.getString("username"),
+                            ctx.data.group.getIdGroup());
                 })
             )
             .subcommand("accept", (b) -> b
