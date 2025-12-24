@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -14,11 +15,15 @@
   <Button onAction="#onHelloButtonClick" text="Hello!" />
   <Button fx:id="serverButton" onAction="#showServerResult" text="Connect to server" />
   <TextField fx:id="receivedMsg" prefHeight="53.0" prefWidth="126.0" />
-  <TextField fx:id="tf">
+  <TextField fx:id="tf" prefHeight="39.0" prefWidth="370.0">
     <font>
-      <Font name="System Bold" size="22.0" />
+      <Font name="System Bold" size="28.0" />
     </font>
   </TextField>
   <Button fx:id="sendBtn" onAction="#onSend" text="Отправить" />
-   <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+   <styleClass>
+      <String fx:value="VBox" />
+      <String fx:value="title" />
+      <String fx:value="button" />
+   </styleClass>
 </VBox>

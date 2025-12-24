@@ -11,3 +11,15 @@
     -fx-text-fill: navy;
     -fx-font-size: 36px;
 }
+
+#receivedMsg {
+    -fx-background-color: rgb(17, 147, 187);
+}
+
+.title {
+    -fx-font-size: large;
+}
+
+.VBox {
+    -fx-background-color: rgb(4, 45, 57);
+}
