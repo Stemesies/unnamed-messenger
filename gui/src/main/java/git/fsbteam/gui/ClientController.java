@@ -46,7 +46,7 @@ public class ClientController implements Initializable {
 
     @FXML
     protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+        welcomeText.setText("Добро пожаловать в мессенджер NeMax!");
     }
 
     @FXML
@@ -85,15 +85,46 @@ public class ClientController implements Initializable {
 //        titleText.setText("NeMax");
     }
 
+    private void finishInput() {
+        input.processInput();
+        tf.setText(null);
+        setInput();
+    }
+
     @FXML
     private Button sendBtn;
 
     @FXML
     public void onSend() {
         setInput();
-        input.processInput();
-        tf.setText(null);
-        setInput();
+        finishInput();
+    }
+
+    @FXML
+    private Button register;
+
+    @FXML
+    private Button groupCreate;
+
+    @FXML
+    public void setRegister() {
+        this.input.setInput("/register " + tf.getText());
+        finishInput();
+    }
+
+    @FXML
+    public void setGroup() {
+        this.input.setInput("/groups create " + tf.getText());
+        finishInput();
+    }
+
+    @FXML
+    private Button openChatBtn;
+
+    @FXML
+    public void openChat() {
+        this.input.setInput("/open " + tf.getText());
+        finishInput();
     }
 }
 

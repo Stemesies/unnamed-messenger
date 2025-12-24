@@ -57,7 +57,7 @@ public class InputManager {
             var msg = this.input;
             i++;
 
-            if (this.input.isEmpty())
+            if (msg.isEmpty())
                 continue;
 
             if (msg.charAt(0) == '/') {
