@@ -13,7 +13,9 @@
 }
 
 #receivedMsg {
-    -fx-background-color: rgb(17, 147, 187);
+    -fx-control-inner-background: rgb(150, 211, 232);
+    -fx-alignment: bottom-left;
+    -fx-text-align: bottom-center;
 }
 
 .title {

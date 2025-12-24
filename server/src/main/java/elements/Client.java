@@ -80,11 +80,11 @@ public class Client {
      * @param message - сообщение в чат
      */
     public String getOffset(String message) {
-        String offset = " ";
+        StringBuilder offset = new StringBuilder(280);
         for (int i = 0; i < (220 - message.length() * 1.5); i++) {
-            offset += " ";
+            offset.append(" ");
         }
-        return offset + message;
+        return offset.toString() + message;
     }
 
     public void sendMessageToChat(String message) {
@@ -104,8 +104,6 @@ public class Client {
                 if (client != this) {
                     client.sendln(chatMessage);
                 } else {
-//                    client.sendln("                                                      "
-//                            + chatMessage);
                     client.sendln(getOffset(chatMessage));
                 }
             }

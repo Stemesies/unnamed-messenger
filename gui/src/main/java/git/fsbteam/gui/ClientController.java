@@ -4,6 +4,7 @@ import elements.Client;
 import elements.InputManager;
 import elements.ServerConnectManager;
 import elements.cli.ServerCommands;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -82,9 +83,12 @@ public class ClientController implements Initializable {
         // Если через это поле можно менять значение MSG
 //        tf.textProperty().bindBidirectional(MSGProperty());
         ServerConnectManager.addOutPutListener(ClientController::setMsg);
-//        titleText.setText("NeMax");
     }
 
+    /**
+     * Действия для успешного завершения ввода после собственно ввода
+     * в текстовое поле.
+     */
     private void finishInput() {
         input.processInput();
         tf.setText(null);
@@ -107,6 +111,18 @@ public class ClientController implements Initializable {
     private Button groupCreate;
 
     @FXML
+    private Button openChatBtn;
+
+    @FXML
+    private Button inviteBtn;
+
+    @FXML
+    private Button helpBtn;
+
+    @FXML
+    private Label online;
+
+    @FXML
     public void setRegister() {
         this.input.setInput("/register " + tf.getText());
         finishInput();
@@ -119,12 +135,31 @@ public class ClientController implements Initializable {
     }
 
     @FXML
-    private Button openChatBtn;
-
-    @FXML
     public void openChat() {
         this.input.setInput("/open " + tf.getText());
         finishInput();
+    }
+
+    @FXML
+    public void inviteToGroup() {
+        this.input.setInput("/groups invite " + tf.getText());
+        finishInput();
+    }
+
+    @FXML
+    public void showHelp() {
+        this.input.setInput("/help " + tf.getText());
+        finishInput();
+    }
+
+    @FXML
+    public void setOnline() {
+        online.setText("• online");
+    }
+
+    @FXML
+    public void setOffline() {
+        online.setText(null);
     }
 }
 
