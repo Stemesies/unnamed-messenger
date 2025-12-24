@@ -2,8 +2,8 @@ package git.fsbteam.gui;
 
 import javafx.application.Application;
 
-public class Amogus {
+public class Main {
     public static void main(String[] args) {
-        Application.launch(HelloApplication.class);
+        Application.launch(ClientApplication.class);
     }
 }

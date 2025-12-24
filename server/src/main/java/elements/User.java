@@ -67,6 +67,11 @@ public class User extends AbstractUser {
 
     }
 
+    @Override
+    public void addFriend(int id) {
+
+    }
+
 //    public void activateManager() {
 //        while (!this.requests.isEmpty()) {
 //            SuperRequest r = requests.getFirst();

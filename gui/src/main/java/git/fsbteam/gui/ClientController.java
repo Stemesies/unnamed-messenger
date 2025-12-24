@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
-public class HelloController implements Initializable {
+public class ClientController implements Initializable {
 
     InputManager input = new InputManager();
 
@@ -74,7 +74,7 @@ public class HelloController implements Initializable {
         receivedMsg.textProperty().bind(msgProperty());
         // Если через это поле можно менять значение MSG
 //        tf.textProperty().bindBidirectional(MSGProperty());
-        ServerConnectManager.addOutPutListener(HelloController::setMsg);
+        ServerConnectManager.addOutPutListener(ClientController::setMsg);
     }
 
     @FXML
