@@ -1,7 +1,7 @@
 import cli.CommandProcessor;
+import elements.cli.ServersideCommands;
 import network.SimpleSocket;
 import utils.Ansi;
-import utils.Utils;
 
 import java.util.Scanner;
 
@@ -14,7 +14,7 @@ public class ClientMain {
 
     private int currentChat = -1;
 
-    private final CommandProcessor commandProcessor = new CommandProcessor();
+    public final CommandProcessor commandProcessor = new CommandProcessor();
     private SimpleSocket socket = null;
     private final Scanner in = new Scanner(System.in);
 

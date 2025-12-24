@@ -12,8 +12,19 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/client" />
+            <option value="$PROJECT_DIR$/gui" />
             <option value="$PROJECT_DIR$/server" />
             <option value="$PROJECT_DIR$/utils" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="delegatedBuild" value="false" />
+        <option name="testRunner" value="PLATFORM" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gui" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/gui" />
           </set>
         </option>
       </GradleProjectSettings>

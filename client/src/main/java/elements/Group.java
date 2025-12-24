@@ -2,6 +2,14 @@ package elements;
 
 public class Group extends AbstractGroup {
 
+    public Group() {
+
+    }
+
+    public Group(String name) {
+        super.name = name;
+    }
+
     @Override
     public void includeUser(int id) {
 //        this.members.add(id); // на сервере находим группу по id и добавляем в неё пользователя
@@ -11,5 +19,4 @@ public class Group extends AbstractGroup {
     public void excludeUser(int id) {
         this.members.remove(members.indexOf(id));
     }
-
 }

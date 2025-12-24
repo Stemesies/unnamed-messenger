@@ -1,6 +1,6 @@
+package elements.cli;
+
 import cli.CommandProcessor;
-import utils.Ansi;
-import utils.extensions.CollectionExt;
 
 /**
  * Описания команд, которые клиент может отправлять серверу.
