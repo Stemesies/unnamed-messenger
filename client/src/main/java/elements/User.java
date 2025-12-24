@@ -17,6 +17,10 @@ public class User extends AbstractUser {
 
     }
 
+    @Override
+    public void addFriend(int id) {
+        this.friends.add(id);
+    }
 //    @Override
 //    public ArrayList<Integer> joinGroup(int id) {
 //         отправка запроса на сервер на вступление в группу
