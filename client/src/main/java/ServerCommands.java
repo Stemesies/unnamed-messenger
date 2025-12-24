@@ -14,10 +14,6 @@ public class ServerCommands {
         System.out.println("you are logged out! Please, log in or register your account.");
     }
 
-    private void friendAddMsg() {
-        System.out.println("Your friend request is approved!");
-    }
-
     /**
      * Уведомление о новом сообщении группы или чата,
      * который не открыт на данный момент.
