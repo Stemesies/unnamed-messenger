@@ -9,6 +9,8 @@ import utils.extensions.CollectionExt;
 
 import managers.DatabaseManager;
 
+import java.util.Objects;
+
 public class ClientCommands {
     public static class ClientContextData {
         public Client client;
@@ -123,17 +125,14 @@ public class ClientCommands {
             .requireArgument("groupname")
             .executes((ctx) -> {
                 var groupname = ctx.getString("groupname");
-                var group = CollectionExt.findBy(
-                    ServerData.getRegisteredGroups(),
-                    (it) -> it.getGroupname().equals(groupname)
-                );
-                if (group == null) {
+                if (!Group.groupExists(groupname)) {
                     ctx.out.println(Ansi.Colors.RED.apply("Group not found."));
                     return;
                 }
+                Group group = Group.getGroupByName(groupname);
                 if (CollectionExt.findBy(
-                    group.getMembers(),
-                    (it) -> it.getUserName().equals(ctx.data.client.user.getUserName())
+                    Objects.requireNonNull(group).getMembers(),
+                    (it) -> it.equals(ctx.data.client.user.getUserId())
                 ) == null) {
                     ctx.out.println(Ansi.Colors.RED.apply("You are not a member of that group."));
                     return;

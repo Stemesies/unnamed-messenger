@@ -85,7 +85,7 @@ public class Client {
             System.out.println(group.groupname + ": " + chatMessage);
             group.messages.add(new Message(0, chatMessage, 0, null));
             for (var u : group.members) {
-                var client = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user == u);
+                var client = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user.id == u);
                 if (client == null)
                     continue;
                 client.sendln(chatMessage);
