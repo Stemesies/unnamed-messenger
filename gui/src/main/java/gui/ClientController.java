@@ -2,6 +2,7 @@ package gui;
 
 import client.elements.cli.ServerCommands;
 import client.elements.Client;
+import utils.StringPrintWriter;
 import utils.elements.ClientTypes;
 import client.elements.InputManager;
 import client.elements.ServerConnectManager;
@@ -64,7 +65,9 @@ public class ClientController implements Initializable {
     }
 
     public static void setMsg(String msg) {
-        MSG.set(msg);
+        System.out.println("Output: " + msg);
+        output.println(msg);
+        MSG.set(output.toString());
     }
 
     public static StringProperty msgProperty() {
@@ -72,6 +75,7 @@ public class ClientController implements Initializable {
     }
 
     private static final StringProperty MSG = new SimpleStringProperty("");
+    private static final StringPrintWriter output = new StringPrintWriter();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="491.0" prefWidth="614.0" spacing="15.0" stylesheets="@../styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ClientController">
+<VBox prefHeight="491.0" prefWidth="614.0" spacing="15.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ClientController">
     <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
         <Label fx:id="titleText" layoutX="233.0" layoutY="8.0" prefHeight="55.0" prefWidth="134.0" text="NeMax" textAlignment="CENTER" wrapText="true" VBox.vgrow="ALWAYS">
             <VBox.margin>
@@ -17,7 +17,7 @@
     </HBox>
 
     <TextArea fx:id="receivedMsg" layoutX="21.0" layoutY="97.0" prefHeight="450.0" prefWidth="574.0" />
-    <TextField fx:id="tf" layoutX="21.0" layoutY="297.0" prefHeight="53.0" prefWidth="574.0">
+    <TextField fx:id="tf" layoutX="21.0" layoutY="297.0" prefHeight="53.0" prefWidth="574.0" stylesheets="@styles.css">
         <font>
             <Font name="System Bold" size="28.0" />
         </font>
