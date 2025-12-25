@@ -1,6 +1,7 @@
 package git.fsbteam.gui;
 
 import elements.Client;
+import elements.ClientTypes;
 import elements.InputManager;
 import elements.ServerConnectManager;
 import elements.cli.ServerCommands;
@@ -53,7 +54,7 @@ public class ClientController implements Initializable {
     @FXML
     public void showServerResult() {
         CompletableFuture.supplyAsync(() -> {
-            Client.launch();
+            Client.launch(ClientTypes.GUI);
             return null;
         });
     }

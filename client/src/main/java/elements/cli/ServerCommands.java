@@ -59,6 +59,13 @@ public class ServerCommands {
                 .subcommand("request", (b) -> b
                         .executes(ServerCommands::registerMsg))
         );
+        processor.register("response", (client) -> client
+                .subcommand("type", (type) -> type
+                        .requireArgument("clientType")
+                        .executes((whatType) ->
+                                    ServerConnectManager.socket.sendln(whatType.getString("clientType")
+                                )
+                        )));
     }
 
     /**

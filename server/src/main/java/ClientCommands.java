@@ -40,6 +40,12 @@ public class ClientCommands {
     }
 
     private static void accountCategoryInit() {
+        processor.register("request", (client) -> client
+                .subcommand("type", (type) -> type
+                        .executes((smth) -> {
+                            return;
+                        })
+                ));
         processor.register("register", (a) -> a
             .require("You are already logged in.", (ctx) -> !ctx.data.isAuthenticated())
             .requireArgument("username")
@@ -152,7 +158,7 @@ public class ClientCommands {
                     if (list.isEmpty())
                         ctx.out.println("No friends.");
                     else
-                        list.forEach((it) -> ctx.out.println(it));
+                        list.forEach(ctx.out::println);
                 })
             )
             .subcommand("request", (b) -> b

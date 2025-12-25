@@ -7,13 +7,20 @@ public class Client {
 
     public static String openChatId;
 
+    private static ClientTypes type;
+
+    public static void setType(ClientTypes type) {
+        Client.type = type;
+    }
+
     static ServerConnectManager scm = new ServerConnectManager("127.0.0.1", 8080);
 
     public static HashMap<String, ArrayList<String>> map = new HashMap<>(20);
 
-    public static void launch() {
+    public static void launch(ClientTypes type) {
         scm.connect();
         System.out.println("Я жив!");
+        setType(type);
     }
 
     /**
