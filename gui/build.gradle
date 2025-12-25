@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'org.openjfx.javafxplugin' version('0.0.13')
+}
+
+group = 'git.fsb-team'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+
+
+dependencies {
+    implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation project(':client')
+    implementation project(':utils')
+}
+
+javafx {
+    version = "21"
+    modules = List.of("javafx.controls", "javafx.fxml")
+}
+
+test {
+    useJUnitPlatform()
+}

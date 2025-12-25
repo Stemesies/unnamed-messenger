@@ -1,5 +1,6 @@
 package server.elements;
 
+import utils.elements.Message;
 import utils.network.SimpleSocket;
 import utils.Ansi;
 import utils.Utils;
@@ -95,9 +96,9 @@ public class Client {
             }
             var chatMessage = Utils.createChatMessage(this, message);
 
-            System.out.println(group.groupname + ": " + chatMessage);
-            group.messages.add(new Message(0, chatMessage, 0, null));
-            for (var u : group.members) {
+            System.out.println(group.getGroupname() + ": " + chatMessage);
+            group.getMessages().add(new Message(0, chatMessage, 0, null));
+            for (var u : group.getMembers()) {
                 var client = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user == u);
                 if (client == null)
                     continue;

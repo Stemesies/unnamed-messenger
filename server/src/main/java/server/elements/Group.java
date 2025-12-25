@@ -3,6 +3,7 @@ package server.elements;
 import utils.Ansi;
 import utils.StringPrintWriter;
 import utils.extensions.CollectionExt;
+import utils.elements.AbstractGroup;
 
 public class Group extends AbstractGroup {
 
@@ -51,7 +52,7 @@ public class Group extends AbstractGroup {
     public void invite(StringPrintWriter out, String username) {
         var user = CollectionExt.findBy(
             ServerData.getRegisteredUsers(),
-            (it) -> it.userName.equals(username)
+            (it) -> it.getUserName().equals(username)
         );
         if (user == null) {
             out.println(Ansi.Colors.RED.apply("User not found."));

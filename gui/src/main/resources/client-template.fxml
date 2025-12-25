@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" prefHeight="491.0" prefWidth="614.0" spacing="20.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ClientController">
+    <Label fx:id="titleText" prefHeight="55.0" prefWidth="134.0" text="NeMax" textAlignment="CENTER" wrapText="true" />
+
+    <Label fx:id="welcomeText" />
+    <Button onAction="#onHelloButtonClick" text="Hello!" />
+    <Button fx:id="serverButton" onAction="#showServerResult" text="Connect to server" />
+    <TextArea fx:id="receivedMsg" prefHeight="53.0" prefWidth="126.0" />
+    <TextField fx:id="tf" prefHeight="39.0" prefWidth="370.0">
+        <font>
+            <Font name="System Bold" size="28.0" />
+        </font>
+    </TextField>
+    <Button fx:id="sendBtn" onAction="#onSend" text="Отправить" />
+    <Button fx:id="register" onAction="#setRegister" text="Зарегистрироваться" />
+    <Button fx:id="groupCreate" onAction="#setGroup" text="Создать чат" />
+    <Button fx:id="openChatBtn" onAction="#openChat" text="Открыть чат" />
+
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+    <styleClass>
+        <String fx:value="VBox" />
+        <String fx:value="title" />
+        <String fx:value="button" />
+    </styleClass>
+</VBox>

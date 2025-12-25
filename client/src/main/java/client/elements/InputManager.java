@@ -1,23 +1,16 @@
 package client.elements;
 
-import utils.cli.CommandProcessor;
 import client.elements.cli.ServersideCommands;
+import utils.cli.CommandProcessor;
+
+import java.util.Scanner;
 
 import static utils.cli.CommandErrors.PHANTOM_COMMAND;
 
 public class InputManager {
 
-    private String input;
-
-    public String getInput() {
-        return this.input;
-    }
-
-    public void setInput(String in) {
-        this.input = in;
-    }
-
     private final CommandProcessor commandProcessor = new CommandProcessor();
+    private final Scanner in = new Scanner(System.in);
 
     public InputManager() {
         ServersideCommands.init(commandProcessor);
@@ -47,37 +40,42 @@ public class InputManager {
         System.out.println("Disconnected from the server");
     }
 
+    public void startInputThread() {
+        new Thread(() -> {
+            while (true) {
+                if (!in.hasNextLine()) {
+                    exit();
+                    return;
+                }
+                var msg = in.nextLine();
+                processInput(msg);
+            }
+        }).start();
+
+    }
+
     /**
      * Получение сообщения от клиента.
      */
     @SuppressWarnings("checkstyle:LineLength")
-    public void processInput() {
-        int i = 0;
-        while (i < 1) {
-            var msg = this.input;
-            i++;
+    public void processInput(String msg) {
+        if (msg.charAt(0) == '/') {
+            commandProcessor.execute(msg, null);
+            var procError = commandProcessor.getLastError();
+            var procOutput = commandProcessor.getOutput();
+            if (procError != null) {
+                if (procError.type == PHANTOM_COMMAND)
+                    send(msg);
+                else
+                    procError.explain();
+            } else if (!procOutput.isEmpty())
+                System.out.print(procOutput);
 
-            if (msg.isEmpty())
-                continue;
-
-            if (msg.charAt(0) == '/') {
-                commandProcessor.execute(msg, null);
-                var procError = commandProcessor.getLastError();
-                var procOutput = commandProcessor.getOutput();
-                if (procError != null) {
-                    if (procError.type == PHANTOM_COMMAND)
-                        send(msg);
-                    else
-                        procError.explain();
-                } else if (procOutput != null) {
-                    System.out.print(procOutput);
-                    this.message = procOutput;
-                }
-                continue;
-            }
-
-            send(msg);
+            return;
         }
+
+        send(msg);
+
     }
 
     private void send(String msg) {

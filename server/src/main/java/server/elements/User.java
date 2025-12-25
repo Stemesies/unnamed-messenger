@@ -1,7 +1,11 @@
 package server.elements;
 
+import server.managers.JoinManager;
+import server.managers.RegisterManager;
 import utils.Ansi;
 import utils.StringPrintWriter;
+import utils.elements.AbstractUser;
+import utils.elements.SuperRequest;
 import utils.extensions.CollectionExt;
 import utils.extensions.StringExt;
 
@@ -72,6 +76,7 @@ public class User extends AbstractUser {
 
     }
 
+//    @Deprecated
 //    public void activateManager() {
 //        while (!this.requests.isEmpty()) {
 //            SuperRequest r = requests.getFirst();

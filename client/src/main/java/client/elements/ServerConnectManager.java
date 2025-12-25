@@ -1,8 +1,8 @@
 package client.elements;
 
 import utils.cli.CommandProcessor;
-import utils.network.SimpleSocket;
 import utils.kt.Apply;
+import utils.network.SimpleSocket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +18,6 @@ public class ServerConnectManager {
     public final int port;
 
     public String message;
-
-//    public void updateControllerMsg() {
-//        HelloController.setMsg(this.message);
-//    }
 
     public static SimpleSocket socket = null;
     private final CommandProcessor commandProcessor = new CommandProcessor();

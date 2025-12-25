@@ -17,6 +17,8 @@ public class Client {
 
     static ServerConnectManager scm = new ServerConnectManager("127.0.0.1", 8080);
 
+    public static InputManager inputManager = new InputManager();
+
     public static HashMap<String, ArrayList<String>> map = new HashMap<>(20);
 
     public static void launch(ClientTypes type) {

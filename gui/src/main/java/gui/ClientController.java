@@ -1,10 +1,10 @@
 package gui;
 
+import client.elements.cli.ServerCommands;
 import client.elements.Client;
 import utils.elements.ClientTypes;
 import client.elements.InputManager;
 import client.elements.ServerConnectManager;
-import client.elements.cli.ServerCommands;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -21,8 +21,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class ClientController implements Initializable {
 
-    InputManager input = new InputManager();
-
     @FXML
     private Label titleText;
 
@@ -38,12 +36,14 @@ public class ClientController implements Initializable {
     @FXML
     private Button serverButton;
 
-    public void setInput() {
-        System.out.println("input: " + tf.getText());
-        if (tf != null)
-            this.input.setInput(tf.getText());
-        else
-            this.input.setInput(null);
+    public void setInput(String input) {
+
+        if (tf != null) {
+            System.out.println("input: " + input);
+            Client.inputManager.processInput(input);
+            tf.setText(null);
+        }
+
     }
 
     @FXML
@@ -86,23 +86,12 @@ public class ClientController implements Initializable {
         ServerConnectManager.addOutPutListener(ClientController::setMsg);
     }
 
-    /**
-     * Действия для успешного завершения ввода после собственно ввода
-     * в текстовое поле.
-     */
-    private void finishInput() {
-        input.processInput();
-        tf.setText(null);
-        setInput();
-    }
-
     @FXML
     private Button sendBtn;
 
     @FXML
     public void onSend() {
-        setInput();
-        finishInput();
+        setInput(tf.getText());
     }
 
     @FXML
@@ -125,32 +114,27 @@ public class ClientController implements Initializable {
 
     @FXML
     public void setRegister() {
-        this.input.setInput("/register " + tf.getText());
-        finishInput();
+        setInput("/register " + tf.getText());
     }
 
     @FXML
     public void setGroup() {
-        this.input.setInput("/groups create " + tf.getText());
-        finishInput();
+        setInput("/groups create " + tf.getText());
     }
 
     @FXML
     public void openChat() {
-        this.input.setInput("/open " + tf.getText());
-        finishInput();
+        setInput("/open " + tf.getText());
     }
 
     @FXML
     public void inviteToGroup() {
-        this.input.setInput("/groups invite " + tf.getText());
-        finishInput();
+        setInput("/groups invite " + tf.getText());
     }
 
     @FXML
     public void showHelp() {
-        this.input.setInput("/help " + tf.getText());
-        finishInput();
+        setInput("/help " + tf.getText());
     }
 
     @FXML
@@ -163,13 +147,3 @@ public class ClientController implements Initializable {
         online.setText(null);
     }
 }
-
-// module git.fsbteam.gui {
-//    requires javafx.controls;
-//    requires javafx.fxml;
-
-//    requires org.kordamp.ikonli.javafx;
-
-//    opens git.fsbteam.gui to javafx.fxml;
-//    exports git.fsbteam.gui;
-// }
