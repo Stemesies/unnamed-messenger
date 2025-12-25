@@ -40,7 +40,7 @@ public class InputManager {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public void processInput(String msg) {
-        if (msg.isEmpty())
+        if (msg == null || msg.isEmpty())
             return;
         if (msg.charAt(0) == '/') {
             commandProcessor.execute(msg, null);

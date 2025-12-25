@@ -135,7 +135,12 @@ public class ClientController implements Initializable {
 
     @FXML
     public void showHelp() {
-        setInput("/help " + tf.getText());
+        var command = "/help ";
+        var text = tf.getText();
+        if (text != null)
+            setInput(command + text);
+        else
+            setInput(command);
     }
 
     @FXML
