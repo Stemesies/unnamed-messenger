@@ -6,27 +6,34 @@ import java.sql.Statement;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool;
 
 public class DatabaseManager {
+    public static final String PORT = "5432";
+    public static final String USERNAME = "JavaM";
+    public static final String PASSWORD = "255";
+
     private static final HikariConfig config = new HikariConfig();
     private static HikariDataSource ds;
 
-//    static {
-//        init();
-//    }
-
     public static void init() {
         // Подключение
-        config.setJdbcUrl("jdbc:postgresql://localhost:5432/JavaM");
-        config.setUsername("JavaM");
-        config.setPassword("255");
+        config.setJdbcUrl("jdbc:postgresql://localhost:" + PORT + "/" + USERNAME);
+        config.setUsername(USERNAME);
+        config.setPassword(PASSWORD);
 
         // Оптимизация
         config.addDataSourceProperty("cachePrepStmts", "true");
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 
-        ds = new HikariDataSource(config);
+        try {
+            ds = new HikariDataSource(config);
+        } catch (HikariPool.PoolInitializationException e) {
+            DatabaseInstallationTutorial.start();
+            System.exit(-1);
+            return;
+        }
 
         try {
             initTables();
