@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="491.0" prefWidth="614.0" spacing="15.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ClientController">
+    <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
+        <Label fx:id="titleText" layoutX="233.0" layoutY="8.0" prefHeight="55.0" prefWidth="134.0" text="NeMax" textAlignment="CENTER" wrapText="true" VBox.vgrow="ALWAYS">
+            <VBox.margin>
+                <Insets />
+            </VBox.margin>
+        </Label>
+    </HBox>
+
+    <TextArea fx:id="receivedMsg" layoutX="21.0" layoutY="97.0" prefHeight="450.0" prefWidth="574.0" styleClass="text-area" stylesheets="@styles.css" />
+    <TextField fx:id="tf" layoutX="21.0" layoutY="297.0" prefHeight="53.0" prefWidth="574.0" stylesheets="@styles.css">
+        <font>
+            <Font name="System Bold" size="28.0" />
+        </font>
+    </TextField>
+    <HBox spacing="20.0">
+        <Button fx:id="groupCreate" layoutX="346.0" layoutY="373.0" onAction="#setGroup" text="Создать чат">
+         <HBox.margin>
+            <Insets />
+         </HBox.margin></Button>
+        <Button fx:id="openChatBtn" layoutX="206.0" layoutY="373.0" onAction="#openChat" text="Открыть чат">
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+        </Button>
+        <Button fx:id="register" layoutX="21.0" layoutY="373.0" onAction="#setRegister" text="Зарегистрироваться">
+            <cursor>
+                <Cursor fx:constant="OPEN_HAND" />
+            </cursor>
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+        </Button>
+        <Button fx:id="logInBtn" layoutX="493.0" layoutY="373.0" onAction="#onLogIn" text="Войти">
+            <HBox.margin>
+                <Insets />
+            </HBox.margin>
+         <cursor>
+            <Cursor fx:constant="OPEN_HAND" />
+         </cursor>
+        </Button>
+        <Button fx:id="inviteBtn" layoutX="493.0" layoutY="373.0" onAction="#inviteToGroup" text="Пригласить">
+            <HBox.margin>
+                <Insets />
+            </HBox.margin>
+        </Button>
+        <HBox HBox.hgrow="ALWAYS" />
+        <Button fx:id="sendBtn" layoutX="493.0" layoutY="373.0" onAction="#onSend" text="Отправить">
+         <HBox.margin>
+            <Insets />
+         </HBox.margin>
+        </Button>
+    </HBox>
+    <HBox>
+        <Button fx:id="serverButton" layoutX="14.0" layoutY="436.0" onAction="#showServerResult" text="Connect to server">
+            <cursor>
+                <Cursor fx:constant="OPEN_HAND" />
+            </cursor>
+         <padding>
+            <Insets top="20.0" />
+         </padding>
+        </Button>
+        <HBox alignment="BASELINE_RIGHT" prefHeight="42.0" prefWidth="73.0" HBox.hgrow="ALWAYS">
+            <VBox.margin>
+                <Insets top="20.0" />
+            </VBox.margin>
+        </HBox>
+         <Button fx:id="helpBtn" onAction="#showHelp" text="Help">
+             <cursor>
+                 <Cursor fx:constant="OPEN_HAND" />
+             </cursor>
+             <padding>
+                 <Insets top="20.0" />
+             </padding>
+         </Button>
+      <VBox.margin>
+         <Insets top="20.0" />
+      </VBox.margin>
+    </HBox>
+
+<!--    <HBox alignment="BASELINE_RIGHT" prefHeight="42.0" prefWidth="73.0">-->
+<!--        <Button fx:id="helpBtn" layoutX="14.0" layoutY="436.0" onAction="#showHelp" text="Help">-->
+<!--            <cursor>-->
+<!--                <Cursor fx:constant="OPEN_HAND" />-->
+<!--            </cursor>-->
+<!--            <padding>-->
+<!--                <Insets top="20.0" />-->
+<!--            </padding>-->
+<!--        </Button>-->
+<!--        <VBox.margin>-->
+<!--            <Insets top="20.0" />-->
+<!--        </VBox.margin>-->
+<!--    </HBox>-->
+
+    <HBox VBox.vgrow="ALWAYS" />
+
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" />
+    </padding>
+    <styleClass>
+        <String fx:value="VBox" />
+        <String fx:value="VBox" />
+        <String fx:value="title" />
+      <String fx:value="button" />
+    </styleClass>
+</VBox>

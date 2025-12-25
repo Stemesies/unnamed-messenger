@@ -1,13 +1,13 @@
-import cli.CommandResults;
-import cli.CommandValidator;
+import utils.cli.CommandErrors;
+import utils.cli.CommandValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import utils.Ansi;
 
-import static cli.CommandResults.INVALID_SEPARATOR;
-import static cli.CommandResults.NO_SEPARATION;
-import static cli.CommandResults.UNCLOSED_QUOTE;
-import static cli.CommandResults.UNEXPECTED_SYMBOL;
+import static utils.cli.CommandErrors.INVALID_SEPARATOR;
+import static utils.cli.CommandErrors.NO_SEPARATION;
+import static utils.cli.CommandErrors.UNCLOSED_QUOTE;
+import static utils.cli.CommandErrors.UNEXPECTED_SYMBOL;
 
 public class CommandValidatorTest {
 
@@ -29,7 +29,7 @@ public class CommandValidatorTest {
         return false;
     }
 
-    void assertError(String command, CommandResults type, int begin, int end) {
+    void assertError(String command, CommandErrors type, int begin, int end) {
         System.out.println(
             Ansi.applyStyle(
                 "\nValidating command: " + command,

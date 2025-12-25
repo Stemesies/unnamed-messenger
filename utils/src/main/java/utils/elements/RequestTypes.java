@@ -1,0 +1,8 @@
+package utils.elements;
+
+public enum RequestTypes {
+    Register,
+    Friend,
+    Join,
+    GroupInvitation
+}

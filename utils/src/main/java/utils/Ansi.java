@@ -63,6 +63,13 @@ public class Ansi {
     /**
      * Стилизует указанный текст, по завершении которого стиль сбрасывается.
      */
+    public String apply(Object string) {
+        return this.toString() + string + Modes.RESET;
+    }
+
+    /**
+     * Стилизует указанный текст, по завершении которого стиль сбрасывается.
+     */
     public static String applyStyle(Object string, Ansi style) {
         return style.toString() + string + Modes.RESET;
     }
@@ -95,7 +102,8 @@ public class Ansi {
      * <br>Встроенная консоль Intelij IDEA не поддерживает эту функцию.
      */
     public static void clearLine() {
-        System.out.print("\33[2K\r");
+        System.out.print("\033[1A\33[2K\r");
+        System.out.flush();
     }
 
     public static class Modes {

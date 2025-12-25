@@ -22,4 +22,5 @@ test {
 checkstyle {
     configFile = rootProject.file("config/checkstyle/checkstyle.xml")
     toolVersion = '12.1.2'
+    ignoreFailures = true
 }

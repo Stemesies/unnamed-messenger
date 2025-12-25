@@ -1,4 +1,4 @@
-import cli.CommandProcessor;
+import utils.cli.CommandProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import utils.Ansi;
@@ -6,12 +6,12 @@ import utils.Ansi;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static cli.CommandResults.COMMAND_NOT_FOUND;
-import static cli.CommandResults.FURTHER_SUBCOMMANDS_EXPECTED;
-import static cli.CommandResults.INVALID_SUBCOMMAND;
-import static cli.CommandResults.MISSING_REQUIRED_ARGUMENT;
-import static cli.CommandResults.UNEXPECTED_SYMBOL;
-import static cli.CommandResults.UNKNOWN_SUBCOMMAND;
+import static utils.cli.CommandErrors.COMMAND_NOT_FOUND;
+import static utils.cli.CommandErrors.FURTHER_SUBCOMMANDS_EXPECTED;
+import static utils.cli.CommandErrors.INVALID_SUBCOMMAND;
+import static utils.cli.CommandErrors.MISSING_REQUIRED_ARGUMENT;
+import static utils.cli.CommandErrors.UNEXPECTED_SYMBOL;
+import static utils.cli.CommandErrors.UNKNOWN_SUBCOMMAND;
 
 public class CommandProcessorTest {
 
@@ -22,7 +22,7 @@ public class CommandProcessorTest {
                 Ansi.Colors.fromRgb(217, 76, 118)
             )
         );
-        return p.executeAndExplain(command);
+        return p.executeAndExplain(command, null);
     }
 
     /**

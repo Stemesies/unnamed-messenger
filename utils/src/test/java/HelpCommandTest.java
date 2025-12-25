@@ -1,4 +1,4 @@
-import cli.CommandProcessor;
+import utils.cli.CommandProcessor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import utils.Ansi;

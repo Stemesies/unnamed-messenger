@@ -2,4 +2,5 @@ rootProject.name = 'NeMAX'
 include 'server'
 include 'client'
 include 'utils'
+include 'gui'
 

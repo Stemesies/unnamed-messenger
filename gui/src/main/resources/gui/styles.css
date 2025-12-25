@@ -1,0 +1,59 @@
+/*.button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
+    -fx-border-radius: 5px;
+    -fx-cursor: pointer;
+} */
+
+#serverButton {
+     -fx-background-color: #454645;
+     -fx-text-fill: white;
+     -fx-font-size: 14px;
+     -fx-padding: 10px 20px;
+     -fx-border-radius: 5px;
+     /* -fx-cursor: pointer; */
+}
+
+#welcomeText {
+    -fx-text-fill: rgb(169, 169, 255);
+    -fx-font-size: 36px;
+}
+
+#receivedMsg {
+    /* -fx-background-color: rgb(17, 147, 187); */
+    -fx-control-inner-background: rgb(17, 147, 187);
+}
+
+.text-area {
+    /* -fx-background-color: rgb(17, 147, 187); */
+    -fx-control-inner-background: rgb(17, 147, 187);
+}
+
+.title {
+    -fx-font-size: large;
+}
+
+.VBox {
+    -fx-background-color: rgb(4, 45, 57);
+    -fx-gap: 4px;
+}
+
+#titleText {
+    -fx-text-fill: #4CAF50;
+    -fx-font-size: 40px;
+    -fx-margin-bottom: 60px;
+}
+
+.Pane {
+    -fx-position: center;
+}
+
+#helpBtn {
+    -fx-background-color: #007500;
+     -fx-text-fill: white;
+     -fx-font-size: 14px;
+     -fx-padding: 10px 10px;
+     -fx-border-radius: 50%;
+}
