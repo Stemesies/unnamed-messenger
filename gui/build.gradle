@@ -22,7 +22,7 @@ dependencies {
 
 javafx {
     version = "21"
-    modules = List.of("javafx.controls", "javafx.fxml")
+    modules = List.of("javafx.controls", "javafx.fxml", "javafx.web")
 }
 
 test {

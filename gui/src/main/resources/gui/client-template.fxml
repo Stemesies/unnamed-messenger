@@ -6,6 +6,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
 
 <VBox prefHeight="491.0" prefWidth="614.0" spacing="15.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.ClientController">
     <HBox alignment="CENTER" VBox.vgrow="ALWAYS">
@@ -15,13 +16,15 @@
             </VBox.margin>
         </Label>
     </HBox>
+   <WebView fx:id="receivedMsg" fontScale="2.0" prefHeight="450.0" prefWidth="574.0"
+            stylesheets="@styles.css"/>
 
-    <TextArea fx:id="receivedMsg" layoutX="21.0" layoutY="97.0" prefHeight="450.0" prefWidth="574.0" styleClass="text-area" stylesheets="@styles.css">
-        <font>
-            <Font name="System Bold Italic" size="20.0" />
-        </font>
-    </TextArea>
-    <TextField fx:id="tf" layoutX="21.0" layoutY="297.0" prefHeight="53.0" prefWidth="574.0" stylesheets="@styles.css">
+<!--    <TextArea fx:id="receivedMsg" layoutX="21.0" layoutY="97.0" prefHeight="450.0" prefWidth="574.0" styleClass="text-area" stylesheets="@styles.css">-->
+<!--        <font>-->
+<!--            <Font name="System Bold Italic" size="20.0" />-->
+<!--        </font>-->
+<!--    </TextArea>-->
+    <TextField fx:id="tf" layoutX="21.0" layoutY="297.0" prefHeight="19.0" prefWidth="574.0" stylesheets="@styles.css">
         <font>
             <Font name="System Bold" size="28.0" />
         </font>

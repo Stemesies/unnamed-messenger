@@ -2,6 +2,8 @@ package gui;
 
 import client.elements.cli.ServerCommands;
 import client.elements.Client;
+import javafx.concurrent.Worker;
+import javafx.scene.web.WebView;
 import utils.StringPrintWriter;
 import utils.elements.ClientTypes;
 import client.elements.ServerConnectManager;
@@ -12,7 +14,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 import java.net.URL;
@@ -30,8 +31,8 @@ public class ClientController implements Initializable {
     @FXML
     private TextField tf;
 
-    @FXML
-    private TextArea receivedMsg;
+//    @FXML
+//    private TextArea receivedMsg;
 
     @FXML
     private Button serverButton;
@@ -65,7 +66,7 @@ public class ClientController implements Initializable {
 
     public static void setMsg(String msg) {
         System.out.println("Output: " + msg);
-        output.println(msg);
+        output.println(msg + "<br>");
         MSG.set(output.toString());
     }
 
@@ -80,8 +81,21 @@ public class ClientController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         ServerCommands.initGeneral();
 
+        receivedMsg.getEngine().loadContent("some content");
+
+        receivedMsg.getEngine().getLoadWorker().stateProperty().addListener((
+                obs, oldVal, newVal) -> {
+            if (newVal == Worker.State.SUCCEEDED) {
+                receivedMsg.getEngine().loadContent(
+                        "<html><body style=\"background-color: rgb(17, 147, 187); "
+                                + "font-family: Segoe UI; text-fill: rgb(142, 237, 137)\">"
+                                + msgProperty().getValue() + "</body></html>");
+            }
+        });
+//        receivedMsg.accessibleTextProperty().bindBidirectional(msgProperty());
+
         // Если поле только для отображения (не может изменять значение MSG)
-        receivedMsg.textProperty().bind(msgProperty());
+//        receivedMsg.textProperty().bind(msgProperty());
         // Если через это поле можно менять значение MSG
 //        tf.textProperty().bindBidirectional(MSGProperty());
         ServerConnectManager.addOutPutListener(ClientController::setMsg);
@@ -146,5 +160,14 @@ public class ClientController implements Initializable {
     @FXML
     public void onLogIn() {
         setInput("/login " + tf.getText());
+    }
+
+    @FXML
+    private WebView receivedMsg;
+
+    public void changeFont() {
+        StringBuilder sb = new StringBuilder(getMsg());
+
+        receivedMsg.getEngine().loadContent(sb.toString());
     }
 }
