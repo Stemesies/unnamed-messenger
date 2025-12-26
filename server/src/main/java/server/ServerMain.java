@@ -3,6 +3,7 @@ package server;
 import server.elements.Client;
 import server.elements.ClientStates;
 import server.managers.DatabaseManager;
+import utils.elements.ClientTypes;
 import utils.network.SimpleServerSocket;
 
 import java.util.ArrayList;
@@ -109,7 +110,8 @@ public class  ServerMain {
                     continue;
                 }
 
-                client.sendMessageToChat(line);
+                boolean isHtml = client.type == ClientTypes.GUI;
+                client.sendMessageToChat(line, isHtml);
             }
 
             getClients().remove(client);

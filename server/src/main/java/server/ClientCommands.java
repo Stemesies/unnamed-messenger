@@ -150,9 +150,10 @@ public class ClientCommands {
                     return;
                 }
                 ctx.data.client.group = group;
+                boolean isHtml = ctx.data.client.type == ClientTypes.GUI;
                 for (var m : group.getMessages())
                     ctx.data.client.sendln(m.getSenderId() == ctx.data.client.user.getId()
-                        ? m.getFormattedSelf()
+                        ? m.getFormattedSelf(isHtml)
                         : m.getFormatted()
                     );
             })

@@ -23,9 +23,9 @@ public class Message {
         return "[" + senderName + "] " + content;
     }
 
-    public String getFormattedSelf() {
+    public String getFormattedSelf(boolean isHtml) {
         var offset = getOffset(getFormatted());
-        return Ansi.Colors.YELLOW.apply(offset) + getFormatted();
+        return Ansi.applyChoose(offset + getFormatted(), Ansi.Colors.YELLOW, isHtml);
     }
 
     public String getContent() {

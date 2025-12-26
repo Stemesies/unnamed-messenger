@@ -89,7 +89,7 @@ public class Client {
         return user == null ? super.toString() : user.getName();
     }
 
-    public void sendMessageToChat(String content) {
+    public void sendMessageToChat(String content, boolean isHtml) {
         if (user == null) {
             styledSendln(("You aren't logged in."), Ansi.Colors.RED, true);
             return;
@@ -118,19 +118,22 @@ public class Client {
                 client.sendln(strMessage);
             } else {
                 if (strMessage.length() <= 30)
-                    client.sendln(Message.getOffset(strMessage));
+                    client.styledSendln(Message.getOffset(strMessage), Ansi.Colors.YELLOW,
+                            isHtml);
                 else {
                     var partMsg = strMessage;
                     var last = strMessage;
                     for (int i = 0; !last.isEmpty(); i += 30) {
                         if (last.length() < 30) {
-                            client.sendln(Message.getOffset(last));
+                            client.styledSendln(Message.getOffset(last), Ansi.Colors.YELLOW,
+                                    isHtml);
                             break;
                         } else {
                             partMsg = last.substring(0, 31);
                             last = last.substring(31, last.length());
 
-                            client.sendln(Message.getOffset(partMsg));
+                            client.styledSendln(Message.getOffset(partMsg), Ansi.Colors.YELLOW,
+                                    isHtml);
                         }
                     }
                 }
