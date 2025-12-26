@@ -18,4 +18,8 @@ public class Message {
     public String getContent() {
         return content;
     }
+
+    public int getSenderId() {
+        return senderId;
+    }
 }

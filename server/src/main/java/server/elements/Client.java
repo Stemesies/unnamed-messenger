@@ -1,9 +1,9 @@
 package server.elements;
 
-import utils.elements.Message;
 import utils.network.SimpleSocket;
 import utils.Ansi;
 import utils.Utils;
+import utils.elements.Message;
 import utils.extensions.CollectionExt;
 
 /**
@@ -89,27 +89,29 @@ public class Client {
     }
 
     public void sendMessageToChat(String message) {
-        if (user != null) {
-            if (group == null) {
-                sendln(Ansi.Colors.RED.apply("No group opened."));
-                return;
-            }
-            var chatMessage = Utils.createChatMessage(this, message);
-
-            System.out.println(group.getGroupname() + ": " + chatMessage);
-            group.getMessages().add(new Message(0, chatMessage, 0, null));
-            for (var u : group.getMembers()) {
-                var client = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user == u);
-                if (client == null)
-                    continue;
-                if (client != this) {
-                    client.sendln(chatMessage);
-                } else {
-                    client.sendln(getOffset(chatMessage));
-                }
-            }
-        } else {
+        if (user == null) {
             sendln(Ansi.Colors.RED.apply("You aren't logged in."));
+            return;
+        }
+        if (group == null) {
+            sendln(Ansi.Colors.RED.apply("No group opened."));
+            return;
+        }
+        var chatMessage = Utils.createChatMessage(this, message);
+
+        System.out.println(group.getGroupname() + ": " + chatMessage);
+        Message messageContent = new Message(0, chatMessage, user.getUserId(), null);
+        group.addMessage(messageContent);
+        for (var u : group.getMembersId()) {
+            var client = CollectionExt.findBy(ServerData.getClients(),
+                    (it) -> it.user.getUserId() == u);
+            if (client == null)
+                continue;
+            if (client != this) {
+                client.sendln(chatMessage);
+            } else {
+                client.sendln(getOffset(chatMessage));
+            }
         }
     }
 }

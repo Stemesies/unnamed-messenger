@@ -9,8 +9,11 @@ import server.elements.User;
 import utils.Ansi;
 import utils.extensions.CollectionExt;
 
-public class ClientCommands {
+import server.managers.DatabaseManager;
 
+import java.util.Objects;
+
+public class ClientCommands {
     public static class ClientContextData {
         public Client client;
         public User user;
@@ -36,9 +39,12 @@ public class ClientCommands {
         new CustomCommandProcessor<>();
 
     public static void init() {
+        // TODO: Заменить
         accountCategoryInit();
         friendsCategoryInit();
         groupsCategoryInit();
+
+        DatabaseManager.init();
     }
 
     private static void accountCategoryInit() {
@@ -128,26 +134,21 @@ public class ClientCommands {
             .requireArgument("groupname")
             .executes((ctx) -> {
                 var groupname = ctx.getString("groupname");
-                var group = CollectionExt.findBy(
-                    ServerData.getRegisteredGroups(),
-                    (it) -> it.getGroupname().equals(groupname)
-                );
-                if (group == null) {
+                if (!Group.groupExists(groupname)) {
                     ctx.out.println(Ansi.Colors.RED.apply("Group not found."));
                     return;
                 }
+                Group group = Group.getGroupByName(groupname);
                 if (CollectionExt.findBy(
-                    group.getMembers(),
-                    (it) -> it.getUserName().equals(ctx.data.client.user.getUserName())
+                    Objects.requireNonNull(group).getMembersId(),
+                    (it) -> it.equals(ctx.data.client.user.getUserId())
                 ) == null) {
                     ctx.out.println(Ansi.Colors.RED.apply("You are not a member of that group."));
                     return;
                 }
                 ctx.data.client.group = group;
-                for (var m : group.getMessages())
-                    ctx.data.client.sendln(m.getContent());
-
-
+                for (var m : group.getMessagesContent())
+                    ctx.data.client.sendln(m);
             })
         );
     }
@@ -157,7 +158,7 @@ public class ClientCommands {
             .require(requireAuth)
             .subcommand("list", (b) -> b
                 .executes((ctx) -> {
-                    var list = ctx.data.user.getFriends();
+                    var list = ctx.data.user.getFriendsId();
                     if (list.isEmpty())
                         ctx.out.println("No friends.");
                     else
@@ -229,7 +230,8 @@ public class ClientCommands {
             .subcommand("invite", (b) -> b
                 .requireArgument("username")
                 .executes((ctx) -> {
-                    ctx.data.group.invite(ctx.out, ctx.getString("username"));
+                    ctx.data.group.invite(ctx.out, ctx.getString("username"),
+                            ctx.data.group.getIdGroup());
                 })
             )
             .subcommand("accept", (b) -> b

@@ -8,9 +8,9 @@ public abstract class AbstractGroup {
     protected String groupname;
     protected String name;
     protected GroupTypes type;
-    protected ArrayList<AbstractUser> members = new ArrayList<>();
-    protected ArrayList<AbstractUser> admins = new ArrayList<>();
-    protected AbstractUser owner;
+    protected ArrayList<Integer> members = new ArrayList<>();
+    protected ArrayList<Integer> admins = new ArrayList<>();
+    protected int owner;
     protected ArrayList<Message> messages = new ArrayList<>(); // id-s сообщений группы
 
     public int getIdGroup() {
@@ -29,7 +29,7 @@ public abstract class AbstractGroup {
         return messages;
     }
 
-    public List<AbstractUser> getMembers() {
+    public List<Integer> getMembers() {
         return members;
     }
 }
