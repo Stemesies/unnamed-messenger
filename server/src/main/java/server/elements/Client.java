@@ -131,7 +131,23 @@ public class Client {
             if (client != this) {
                 client.sendln(chatMessage);
             } else {
-                client.sendln(getOffset(chatMessage));
+                if (chatMessage.length() <= 30)
+                    client.sendln(getOffset(chatMessage));
+                else {
+                    var partMsg = chatMessage;
+                    var last = chatMessage;
+                    for (int i = 0; !last.isEmpty(); i += 30) {
+                        if (last.length() < 30) {
+                            client.sendln(getOffset(last));
+                            break;
+                        } else {
+                            partMsg = last.substring(0, 31);
+                            last = last.substring(31, last.length());
+
+                            client.sendln(getOffset(partMsg));
+                        }
+                    }
+                }
             }
         }
     }
