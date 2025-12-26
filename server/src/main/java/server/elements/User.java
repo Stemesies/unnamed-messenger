@@ -354,11 +354,13 @@ public class User extends AbstractUser {
             └%s┘
             """.formatted(
                 "─".repeat(boxSize - 2),
-                Ansi.applyChoose(" ", headerColor, isHtml) + Ansi.applyChoose(trimmedName,
-                        Ansi.Modes.BOLD.and(headerColor), isHtml)
-                        + Ansi.applyChoose(onlineLabel + " ".repeat(boxSize
-                        - 3 - onlineLabel.length() - trimmedName.length()), headerColor, isHtml),
-                this.userName + " ".repeat(boxSize - 5 - trimmedUsername.length()),
+                Ansi.applyChoose(" ", headerColor, isHtml),
+                Ansi.applyChoose(trimmedName, Ansi.Modes.BOLD.and(headerColor), isHtml)
+                        + Ansi.applyChoose(onlineLabel, headerColor, isHtml),
+                Ansi.applyChoose(" ".repeat(boxSize - 3
+                        - onlineLabel.length() - trimmedName.length()), headerColor, isHtml),
+                this.userName,
+                " ".repeat(boxSize - 5 - trimmedUsername.length()),
                 "─".repeat(boxSize - 2)
         );
     }
