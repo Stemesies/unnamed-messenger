@@ -63,6 +63,29 @@ public class CommandProcessorTest {
     }
 
     @Test
+    public void repeatingRegister() {
+        var processor = new CommandProcessor();
+
+        processor.register("imRepeating", (rc) -> rc
+            .executes(()->{})
+        );
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () ->
+            processor.register("imRepeating", (rc) -> rc
+            .executes(()->{})
+            ));
+    }
+
+    @Test
+    public void accidentalSlash() {
+        var processor = new CommandProcessor();
+
+        Assertions.assertThrowsExactly(IllegalArgumentException.class, () ->
+            processor.register("/welp", (rc) -> rc
+                .executes(()->{})
+            ));
+    }
+
+    @Test
     public void invisibleCommand() {
         var processor = new CommandProcessor();
 
