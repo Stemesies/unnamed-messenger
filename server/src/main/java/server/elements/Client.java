@@ -2,8 +2,6 @@ package server.elements;
 
 import utils.network.SimpleSocket;
 import utils.Ansi;
-import utils.Utils;
-import utils.elements.Message;
 import utils.extensions.CollectionExt;
 
 /**
@@ -75,20 +73,7 @@ public class Client {
         return user == null ? super.toString() : user.getName();
     }
 
-    /**
-     * Выводит сообщение от себя в чат пользователя.
-     *
-     * @param message - сообщение в чат
-     */
-    public String getOffset(String message) {
-        StringBuilder offset = new StringBuilder(280);
-        for (int i = 0; i < (250 - message.length() * 1.5); i++) {
-            offset.append(" ");
-        }
-        return offset.toString() + message;
-    }
-
-    public void sendMessageToChat(String message) {
+    public void sendMessageToChat(String content) {
         if (user == null) {
             sendln(Ansi.Colors.RED.apply("You aren't logged in."));
             return;
@@ -97,21 +82,27 @@ public class Client {
             sendln(Ansi.Colors.RED.apply("No group opened."));
             return;
         }
-        var chatMessage = Utils.createChatMessage(this, message);
+        Message message = new Message(0, content, user.getName(), user.getId(),  null);
+        var strMessage = message.getFormatted();
 
-        System.out.println(group.getGroupname() + ": " + chatMessage);
-        Message messageContent = new Message(0, chatMessage, user.getUserId(), null);
-        group.addMessage(messageContent);
+        System.out.println(group.getGroupname() + ": " + strMessage);
+
+        group.addMessage(message);
         for (var u : group.getMembersId()) {
-            var client = CollectionExt.findBy(ServerData.getClients(),
-                    (it) -> it.user.getUserId() == u);
+
+            var client = CollectionExt.findBy(
+                ServerData.getRegisteredClients(),
+                (it) -> it.user.getId() == u
+            );
+
             if (client == null)
                 continue;
-            if (client != this) {
-                client.sendln(chatMessage);
-            } else {
-                client.sendln(getOffset(chatMessage));
-            }
+
+            client.sendln(client != this
+                    ? strMessage
+                    : message.getFormattedSelf()
+            );
+
         }
     }
 }

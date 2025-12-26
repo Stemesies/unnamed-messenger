@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import static server.elements.ServerData.getClients;
+import static server.elements.ServerData.getRegisteredClients;
 
 public class ServerMain {
     SimpleServerSocket socket = null;
@@ -98,6 +99,7 @@ public class ServerMain {
             }
 
             getClients().remove(client);
+            getRegisteredClients().remove(client);
             System.out.printf("Client %s disconnected\n", client);
         }).start();
     }

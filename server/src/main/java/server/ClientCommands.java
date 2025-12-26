@@ -57,30 +57,35 @@ public class ClientCommands {
             .require("You are already logged in.", (ctx) -> !ctx.data.isAuthenticated())
             .requireArgument("username")
             .requireArgument("password")
-            .executes((ctx) ->
+            .executes((ctx) -> {
                 ctx.data.client.user = User.register(
                     ctx.out,
                     ctx.getString("username"),
                     ctx.getString("password")
-                )
-            )
+                );
+                if (ctx.data.client.user != null)
+                    ServerData.getRegisteredClients().add(ctx.data.client);
+            })
         );
         processor.register("login", (a) -> a
             .require("You are already logged in.", (ctx) -> !ctx.data.isAuthenticated())
             .requireArgument("username")
             .requireArgument("password")
-            .executes((ctx) ->
+            .executes((ctx) -> {
                 ctx.data.client.user = User.logIn(
                     ctx.out,
                     ctx.getString("username"),
                     ctx.getString("password")
-                )
-            )
+                );
+                if (ctx.data.client.user != null)
+                    ServerData.getRegisteredClients().add(ctx.data.client);
+            })
         );
         processor.register("logout", (a) -> a
             .require(requireAuth)
             .executes((ctx) -> {
                 ctx.data.client.user = null;
+                ServerData.getRegisteredClients().remove(ctx.data.client);
                 ctx.out.println("Successfully logged out.");
             })
         );
@@ -140,14 +145,17 @@ public class ClientCommands {
 
                 if (CollectionExt.findBy(
                     group.getMembersId(),
-                    (it) -> it.equals(ctx.data.client.user.getUserId())
+                    (it) -> it.equals(ctx.data.client.user.getId())
                 ) == null) {
                     ctx.out.println(Ansi.Colors.RED.apply("You are not a member of that group."));
                     return;
                 }
                 ctx.data.client.group = group;
-                for (var m : group.getMessagesContent())
-                    ctx.data.client.sendln(m);
+                for (var m : group.getMessages())
+                    ctx.data.client.sendln(m.getSenderId() == ctx.data.client.user.getId()
+                        ? m.getFormattedSelf()
+                        : m.getFormatted()
+                    );
             })
         );
     }

@@ -13,7 +13,7 @@ public class FriendManager extends FriendRequest implements Manager {
      */
     private void addToFriends(User user1, User user2, boolean response) {
         if (response)
-            user2.getFriends().add(user1.getUserId());
+            user2.getFriends().add(user1.getId());
     }
 
     User user1;

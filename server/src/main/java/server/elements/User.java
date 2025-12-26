@@ -192,6 +192,7 @@ public class User extends AbstractUser {
 
                 if (storedPassword.equals(inputPassword)) {
                     User user = new User(username, password);
+                    user.name = rs.getString("name");
                     user.id = rs.getInt("id");
 
                     // Обновляем время последнего входа
@@ -228,6 +229,7 @@ public class User extends AbstractUser {
             stmt.setString(1, name);
             stmt.setInt(2, this.id);
             stmt.executeUpdate();
+            this.name = name;
 
         } catch (SQLException e) {
             System.err.println("Error updating User`s name: " + e.getMessage());
@@ -331,7 +333,10 @@ public class User extends AbstractUser {
     @SuppressWarnings("checkstyle:LineLength")
     public String getProfile() {
         // FIXME
-        var connectedCommand = CollectionExt.findBy(ServerData.getClients(), (it) -> it.user == this);
+        var connectedCommand = CollectionExt.findBy(
+            ServerData.getRegisteredClients(), (it) -> it.user == this
+        );
+
         var onlineMode = connectedCommand == null ? "" : " • online";
 
         var boxSize = 50;

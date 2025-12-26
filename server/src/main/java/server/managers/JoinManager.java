@@ -13,7 +13,7 @@ public class JoinManager extends JoinRequest implements Manager {
      * @param group - группа, в которую вступает пользователь
      */
     private void joinGroup(User user, Group group) {
-        group.includeUser(user.getUserId());
+        group.includeUser(user.getId());
     }
 
     User user;
