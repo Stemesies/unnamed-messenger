@@ -6,7 +6,6 @@ import client.elements.Client;
 import javafx.concurrent.Worker;
 import javafx.scene.web.WebView;
 import utils.StringPrintWriter;
-import utils.elements.ClientTypes;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -32,7 +31,7 @@ public class ClientController implements Initializable {
     private TextField tf;
 
 //    @FXML
-//    private TextArea receivedMsg;
+//    private TextArea tar;
 
     @FXML
     private WebView receivedMsg;
@@ -95,15 +94,17 @@ public class ClientController implements Initializable {
                 obs, oldVal, newVal) -> {
             if (newVal == Worker.State.SUCCEEDED) {
                 receivedMsg.getEngine().loadContent(scrollHtml + webViewContents
-                        + "<html><body style=\"background-color: rgb(17, 147, 187); "
-                                + "font-style: italic; color: white;\">"
-                                + "<pre>" + msgProperty().getValue() + "</pre>" + "</body></html>");
+                        + "<html><body style="
+                        + "\"background-color: rgb(17, 147, 187); "
+                                + "font-style: italic; color: white; overflow-y: scroll;\">"
+                                + "<pre>" + msgProperty().getValue() + "</pre>"
+                        + "</body></html>");
             }
         });
 //        receivedMsg.accessibleTextProperty().bindBidirectional(msgProperty());
 
         // Если поле только для отображения (не может изменять значение MSG)
-//        receivedMsg.textProperty().bind(msgProperty());
+//        tar.textProperty().bind(msgProperty());
         // Если через это поле можно менять значение MSG
 //        tf.textProperty().bindBidirectional(MSGProperty());
         OutputManager.addOutPutListener(ClientController::setMsg);

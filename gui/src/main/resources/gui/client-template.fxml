@@ -18,7 +18,7 @@
     </HBox>
    <WebView fx:id="receivedMsg" fontScale="1.6" prefHeight="450.0" prefWidth="574.0" stylesheets="@styles.css" />
 
-<!--    <TextArea fx:id="receivedMsg" layoutX="21.0" layoutY="97.0" prefHeight="450.0" prefWidth="574.0" styleClass="text-area" stylesheets="@styles.css">-->
+<!--    <TextArea fx:id="tar" layoutX="21.0" layoutY="97.0" prefHeight="450.0" prefWidth="574.0" styleClass="text-area" stylesheets="@styles.css">-->
 <!--        <font>-->
 <!--            <Font name="System Bold Italic" size="20.0" />-->
 <!--        </font>-->
@@ -92,20 +92,6 @@
          <Insets top="20.0" />
       </VBox.margin>
     </HBox>
-
-<!--    <HBox alignment="BASELINE_RIGHT" prefHeight="42.0" prefWidth="73.0">-->
-<!--        <Button fx:id="helpBtn" layoutX="14.0" layoutY="436.0" onAction="#showHelp" text="Help">-->
-<!--            <cursor>-->
-<!--                <Cursor fx:constant="OPEN_HAND" />-->
-<!--            </cursor>-->
-<!--            <padding>-->
-<!--                <Insets top="20.0" />-->
-<!--            </padding>-->
-<!--        </Button>-->
-<!--        <VBox.margin>-->
-<!--            <Insets top="20.0" />-->
-<!--        </VBox.margin>-->
-<!--    </HBox>-->
 
     <HBox VBox.vgrow="ALWAYS" />
 

@@ -102,7 +102,7 @@ public class Client {
      */
     public String getOffset(String message) {
         StringBuilder offset = new StringBuilder(280);
-        for (int i = 0; i < (250 - message.length() * 1.5); i++) {
+        for (int i = 0; i < (120 - message.length() * 1.3); i++) {
             offset.append(" ");
         }
         return offset.toString() + message;
