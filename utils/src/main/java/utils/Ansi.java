@@ -112,15 +112,15 @@ public class Ansi {
     }
 
     public static class Modes {
-        public static final Ansi RESET = new Ansi("0", "<b>", "</b>");
+        public static final Ansi RESET = new Ansi("0", "", "");
         public static final Ansi BOLD = new Ansi("1", "<b>", "</b>");
-        public static final Ansi FAINT = new Ansi("2", "<b>", "</b>");
-        public static final Ansi ITALIC = new Ansi("3", "<b>", "</b>");
-        public static final Ansi UNDERLINE = new Ansi("4", "<b>", "</b>");
-        public static final Ansi BLINKING = new Ansi("6", "<b>", "</b>");
-        public static final Ansi INVERTED = new Ansi("7", "<b>", "</b>");
-        public static final Ansi INVISIBLE_TEXT = new Ansi("8", "<b>", "</b>");
-        public static final Ansi STRIKETHROUGH = new Ansi("9", "<b>", "</b>");
+        public static final Ansi FAINT = new Ansi("2", "", "");
+        public static final Ansi ITALIC = new Ansi("3", "<i>", "</i>");
+        public static final Ansi UNDERLINE = new Ansi("4", "<u>", "</u>");
+        public static final Ansi BLINKING = new Ansi("6", "", "");
+        public static final Ansi INVERTED = new Ansi("7", "", "");
+        public static final Ansi INVISIBLE_TEXT = new Ansi("8", "", "");
+        public static final Ansi STRIKETHROUGH = new Ansi("9", "<s>", "</s>");
 
     }
 
@@ -158,29 +158,29 @@ public class Ansi {
     }
 
     public static class BgColors {
-        public static final Ansi BLACK = new Ansi("40", "<span style=\"color: #000000\">", "</span>");
-        public static final Ansi RED = new Ansi("41", "<span style=\"color: #dd1212\">", "</span>");
-        public static final Ansi GREEN = new Ansi("42", "<span style=\"color: #007500\">", "</span>");
-        public static final Ansi YELLOW = new Ansi("43", "<span style=\"color: #f1ee35\">", "</span>");
-        public static final Ansi BLUE = new Ansi("44", "<span style=\"color: #265dc2\">", "</span>");
-        public static final Ansi MAGENTA = new Ansi("45", "<span style=\"color: #c226b8\">", "</span>");
-        public static final Ansi CYAN = new Ansi("46", "<span style=\"color: #26b0c2\">", "</span>");
-        public static final Ansi WHITE = new Ansi("47", "<span style=\"color: #ffffff\">", "</span>");
+        public static final Ansi BLACK = new Ansi("40", "<span style=\"background-color: #000000\">", "</span>");
+        public static final Ansi RED = new Ansi("41", "<span style=\"background-color: #dd1212\">", "</span>");
+        public static final Ansi GREEN = new Ansi("42", "<span style=\"background-color: #007500\">", "</span>");
+        public static final Ansi YELLOW = new Ansi("43", "<span style=\"background-color: #f1ee35\">", "</span>");
+        public static final Ansi BLUE = new Ansi("44", "<span style=\"background-color: #265dc2\">", "</span>");
+        public static final Ansi MAGENTA = new Ansi("45", "<span style=\"background-color: #c226b8\">", "</span>");
+        public static final Ansi CYAN = new Ansi("46", "<span style=\"background-color: #26b0c2\">", "</span>");
+        public static final Ansi WHITE = new Ansi("47", "<span style=\"background-color: #ffffff\">", "</span>");
 
         public static class Bright {
-            public static final Ansi BLACK = new Ansi("100", "<span style=\"color: #000000\">", "</span>");
-            public static final Ansi RED = new Ansi("101", "<span style=\"color: #dd1212\">", "</span>");
-            public static final Ansi GREEN = new Ansi("102", "<span style=\"color: #007500\">", "</span>");
-            public static final Ansi YELLOW = new Ansi("103", "<span style=\"color: #f1ee35\">", "</span>");
-            public static final Ansi BLUE = new Ansi("104", "<span style=\"color: #265dc2\">", "</span>");
-            public static final Ansi MAGENTA = new Ansi("105", "<span style=\"color: #c226b8\">", "</span>");
-            public static final Ansi CYAN = new Ansi("106", "<span style=\"color: #26b0c2\">", "</span>");
-            public static final Ansi WHITE = new Ansi("107", "<span style=\"color: #ffffff\">", "</span>");
+            public static final Ansi BLACK = new Ansi("100", "<span style=\"background-color: #000000\">", "</span>");
+            public static final Ansi RED = new Ansi("101", "<span style=\"background-color: #dd1212\">", "</span>");
+            public static final Ansi GREEN = new Ansi("102", "<span style=\"background-color: #007500\">", "</span>");
+            public static final Ansi YELLOW = new Ansi("103", "<span style=\"background-color: #f1ee35\">", "</span>");
+            public static final Ansi BLUE = new Ansi("104", "<span style=\"background-color: #265dc2\">", "</span>");
+            public static final Ansi MAGENTA = new Ansi("105", "<span style=\"background-color: #c226b8\">", "</span>");
+            public static final Ansi CYAN = new Ansi("106", "<span style=\"background-color: #26b0c2\">", "</span>");
+            public static final Ansi WHITE = new Ansi("107", "<span style=\"background-color: #ffffff\">", "</span>");
         }
 
         public static Ansi fromRgb(int r, int g, int b) {
             return new Ansi("48;2;" + r + ";" + g + ";" + b,
-                    "<span style=\"color: rgb(" + r + ", " + g + ", " + b + ");\">", "</span>");
+                    "<span style=\"background-color: rgb(" + r + ", " + g + ", " + b + ");\">", "</span>");
         }
 
         public static Ansi from8Bit(int index) {

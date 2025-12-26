@@ -35,6 +35,9 @@ public class ClientController implements Initializable {
 //    private TextArea receivedMsg;
 
     @FXML
+    private WebView receivedMsg;
+
+    @FXML
     private Button serverButton;
 
     public void setInput(String input) {
@@ -160,14 +163,5 @@ public class ClientController implements Initializable {
     @FXML
     public void onLogIn() {
         setInput("/login " + tf.getText());
-    }
-
-    @FXML
-    private WebView receivedMsg;
-
-    public void changeFont() {
-        StringBuilder sb = new StringBuilder(getMsg());
-
-        receivedMsg.getEngine().loadContent(sb.toString());
     }
 }
