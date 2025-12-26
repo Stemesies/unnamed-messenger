@@ -1,6 +1,8 @@
 package server;
 
 import server.elements.Client;
+import server.elements.ClientStates;
+import server.managers.DatabaseManager;
 import utils.network.SimpleServerSocket;
 
 import java.util.ArrayList;
@@ -76,9 +78,21 @@ public class ServerMain {
     public void processClient(Client client) {
         new Thread(() -> {
             System.out.printf("Client %s connected\n", client);
+            client.state = ClientStates.AwaitingType;
+            client.stateRequest();
 
             while (client.hasNewMessage()) {
                 var line = client.receiveMessage();
+
+                if (client.state != ClientStates.Fine) {
+                    ClientResponseCommands.processor.execute(
+                        line,
+                        new ClientResponseCommands.ClientContextData(client)
+                    );
+                    if (ClientResponseCommands.processor.getLastError() != null)
+                        client.stateRequest();
+                    continue;
+                }
 
                 if (line.charAt(0) == '/') {
                     var proc = ClientCommands.processor;
@@ -118,7 +132,9 @@ public class ServerMain {
     }
 
     public static void main(String[] args) {
+        DatabaseManager.init();
         ClientCommands.init();
+        ClientResponseCommands.init();
         new ServerMain().start();
     }
 }

@@ -12,6 +12,7 @@ import utils.extensions.CollectionExt;
 import server.managers.DatabaseManager;
 
 public class ClientCommands {
+
     public static class ClientContextData {
         public Client client;
         public User user;
@@ -37,22 +38,12 @@ public class ClientCommands {
         new CustomCommandProcessor<>();
 
     public static void init() {
-        // TODO: Заменить
         accountCategoryInit();
         friendsCategoryInit();
         groupsCategoryInit();
-
-        DatabaseManager.init();
     }
 
     private static void accountCategoryInit() {
-        processor.register("require", (client) -> client
-                .isInvisible()
-                .subcommand("type", (type) -> type
-                        .executes((smth) -> {
-                            return;
-                        })
-                ));
         processor.register("register", (a) -> a
             .require("You are already logged in.", (ctx) -> !ctx.data.isAuthenticated())
             .requireArgument("username")

@@ -1,5 +1,6 @@
 package client.elements;
 
+import client.elements.cli.ServerRequestCommands;
 import utils.elements.ClientTypes;
 
 import java.util.ArrayList;
@@ -11,8 +12,8 @@ public class Client {
 
     private static ClientTypes type;
 
-    public static void setType(ClientTypes type) {
-        Client.type = type;
+    public static ClientTypes getType() {
+        return type;
     }
 
     static ServerConnectManager scm = new ServerConnectManager("127.0.0.1", 8080);
@@ -22,9 +23,11 @@ public class Client {
     public static HashMap<String, ArrayList<String>> unread = new HashMap<>(20);
 
     public static void launch(ClientTypes type) {
+        ServerRequestCommands.init();
+
         scm.connect();
         System.out.println("Я жив!");
-        setType(type);
+        Client.type = type;
     }
 
     /**

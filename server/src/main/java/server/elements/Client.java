@@ -1,5 +1,6 @@
 package server.elements;
 
+import utils.elements.ClientTypes;
 import utils.network.SimpleSocket;
 import utils.Ansi;
 import utils.Utils;
@@ -20,6 +21,9 @@ public class Client {
      * не был произведен вход / регистрация.
      */
     public User user = null;
+
+    public ClientTypes type = null;
+    public ClientStates state = ClientStates.Fine;
 
     @Deprecated
     public Group group = null;
@@ -112,6 +116,14 @@ public class Client {
             } else {
                 client.sendln(getOffset(chatMessage));
             }
+        }
+    }
+
+    public void stateRequest() {
+        // noinspection SwitchStatementWithTooFewBranches
+        switch (state) {
+            case AwaitingType -> sendln("/request type");
+            default -> {}
         }
     }
 }
