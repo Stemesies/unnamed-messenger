@@ -4,7 +4,6 @@ import server.managers.DatabaseManager;
 import utils.Ansi;
 import utils.StringPrintWriter;
 import utils.elements.AbstractGroup;
-import utils.elements.Message;
 
 import java.sql.Array;
 import java.sql.Connection;
@@ -85,8 +84,8 @@ public class Group extends AbstractGroup {
             out.println(Ansi.Colors.RED.apply("Groupname is already in use."));
             return null;
         }
-        Group group = new Group(owner.getUserId(), groupname, name);
-        addGroup(owner.getUserId(), group);
+        Group group = new Group(owner.getId(), groupname, name);
+        addGroup(owner.getId(), group);
         group = getGroupByName(groupname);
         addMember(group.getIdGroup(), owner.getUserName(), true);
         out.println("Registered successfully.");
@@ -192,9 +191,10 @@ public class Group extends AbstractGroup {
         }
     }
 
-    public List<String> getMessagesContent() {
-        List<String> messages = new ArrayList<>();
-        String sql = "SELECT * FROM messages WHERE group_id = ?";
+    public List<Message> getMessages() {
+        List<Message> messages = new ArrayList<>();
+        String sql = "SELECT * FROM public.messages m JOIN public.users u "
+            + "ON m.sender_id = u.id WHERE group_id = ? ORDER BY sent_time ASC";
 
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -203,7 +203,14 @@ public class Group extends AbstractGroup {
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
-                messages.add(rs.getString("content"));
+                messages.add(new Message(
+                    rs.getInt("id"),
+                    rs.getString("content"),
+                    rs.getString("name"),
+                    rs.getInt("sender_id"),
+                    rs.getTimestamp("sent_time")
+
+                ));
             }
 
         } catch (SQLException e) {

@@ -25,7 +25,7 @@ public abstract class AbstractUser {
         return request;
     }
 
-    public int getUserId() {
+    public int getId() {
         return this.id;
     }
 

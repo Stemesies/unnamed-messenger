@@ -16,16 +16,17 @@ public class Client {
         return type;
     }
 
-    static ServerConnectManager scm = new ServerConnectManager("127.0.0.1", 8080);
-
     public static InputManager input = new InputManager();
 
     public static HashMap<String, ArrayList<String>> unread = new HashMap<>(20);
 
     public static void launch(ClientTypes type) {
         ServerRequestCommands.init();
+      
+        ServerConnectManager.host = "127.0.0.1";
+        ServerConnectManager.port = 8080;
+        ServerConnectManager.connect();
 
-        scm.connect();
         System.out.println("Я жив!");
         Client.type = type;
     }

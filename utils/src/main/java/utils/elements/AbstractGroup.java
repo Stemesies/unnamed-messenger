@@ -11,7 +11,6 @@ public abstract class AbstractGroup {
     protected ArrayList<Integer> members = new ArrayList<>();
     protected ArrayList<Integer> admins = new ArrayList<>();
     protected int owner;
-    protected ArrayList<Message> messages = new ArrayList<>(); // id-s сообщений группы
 
     public int getIdGroup() {
         return this.id;
@@ -23,10 +22,6 @@ public abstract class AbstractGroup {
 
     public String getGroupname() {
         return this.groupname;
-    }
-
-    public List<Message> getMessages() {
-        return messages;
     }
 
     public List<Integer> getMembers() {

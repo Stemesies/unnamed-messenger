@@ -86,9 +86,22 @@ public class CustomCommandProcessor<T> {
     }
 
     public void register(String command, ApplyStrict<Command.Builder<T>> action)
-        throws IllegalStateException {
+        throws IllegalArgumentException {
 
-        var c = Command.<T>create(command);
+        for (Command<T> c : registeredCommands) {
+            if (command.equals(c.base))
+                throw new IllegalArgumentException(
+                    "Command '" + command + "' already exists."
+                );
+        }
+
+        Command.Builder<T> c;
+        try {
+            c = Command.create(command);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e);
+        }
+
         action.run(c);
         registeredCommands.add(c.build());
     }
