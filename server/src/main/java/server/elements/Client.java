@@ -20,7 +20,7 @@ public class Client {
      */
     public User user = null;
 
-    public ClientTypes type = null;
+    public ClientTypes type = ClientTypes.GUI;
     public ClientStates state = ClientStates.Fine;
 
     @Deprecated
@@ -95,7 +95,7 @@ public class Client {
             return;
         }
         if (group == null) {
-            sendln(Ansi.Colors.RED.apply("No group opened."));
+            styledSendln("No group opened.", Ansi.Colors.RED, type == ClientTypes.GUI);
             return;
         }
         Message message = new Message(0, content, user.getName(), user.getId(),  null);

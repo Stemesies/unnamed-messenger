@@ -69,7 +69,7 @@
         </Button>
     </HBox>
     <HBox>
-        <Button fx:id="serverButton" layoutX="14.0" layoutY="436.0" onAction="#showServerResult" text="Connect to server">
+        <Button fx:id="serverButton" layoutX="14.0" layoutY="436.0" onAction="#showServerResult" text="Reconnect to server">
             <cursor>
                 <Cursor fx:constant="OPEN_HAND" />
             </cursor>

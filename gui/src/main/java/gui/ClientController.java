@@ -17,7 +17,6 @@ import javafx.scene.control.TextField;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
 
 public class ClientController implements Initializable {
 
@@ -53,10 +52,6 @@ public class ClientController implements Initializable {
 
     @FXML
     public void showServerResult() {
-//        CompletableFuture.supplyAsync(() -> {
-//            Client.launch(ClientTypes.GUI);
-//            return null;
-//        });
         setInput("/retry");
     }
 
@@ -81,17 +76,12 @@ public class ClientController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         ServerCommands.initGeneral();
 
-        StringBuilder scrollHtml = scrollWebView(0, 1000);
-        String webViewContents = (String) receivedMsg.getEngine()
-                .executeScript("document.documentElement.outerHTML");
-
         receivedMsg.getEngine().loadContent("some content");
 
         receivedMsg.getEngine().getLoadWorker().stateProperty().addListener((
                 obs, oldVal, newVal) -> {
             if (newVal == Worker.State.SUCCEEDED) {
-                receivedMsg.getEngine().loadContent(scrollHtml + webViewContents
-                        + "<html><body style="
+                receivedMsg.getEngine().loadContent("<html><body style="
                         + "\"background-color: rgb(17, 147, 187); "
                                 + "font-style: italic; color: white; overflow-y: scroll;"
                                 + "overflow-x: scroll;\">"
@@ -165,20 +155,5 @@ public class ClientController implements Initializable {
     @FXML
     public void onLogIn() {
         setInput("/login " + tf.getText());
-    }
-
-    @SuppressWarnings("checkstyle:ParameterName")
-    public static StringBuilder scrollWebView(int xPos, int yPos) {
-        StringBuilder script = new StringBuilder().append("<html>");
-        script.append("<head>");
-        script.append("   <script language=\"javascript\" type=\"text/javascript\">");
-        script.append("       function toBottom(){");
-        script.append("           window.scrollTo(0, document.body.scrollHeight, \"smooth\");");
-        script.append("       }");
-        script.append("   </script>");
-        script.append("</head>");
-        script.append("<body onload='toBottom()'>");
-
-        return script;
     }
 }

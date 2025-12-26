@@ -24,8 +24,10 @@ public class ServerConnectManager {
     public static void send(String msg) {
         if (isConnected())
             socket.sendln(msg);
-        else
+        else {
             System.err.println("Not connected to server.");
+            OutputManager.stylePrint("Not connected to server.", Ansi.Colors.RED);
+        }
     }
 
     static boolean isConnected() {
@@ -62,7 +64,7 @@ public class ServerConnectManager {
 
         socket.close();
         socket = null;
-        OutputManager.print("Disconnected from the server");
+        OutputManager.stylePrint("Disconnected from the server", Ansi.Colors.RED);
     }
 
     static boolean isDisconnected() {
@@ -77,7 +79,6 @@ public class ServerConnectManager {
             while (isConnected()) {
                 if (socket.hasNewMessage()) {
                     var message = socket.receiveMessage();
-                    OutputManager.print(message);
 
                     // Сервер прислал запрос. Отвечаем и ничего не выводим пользователю.
                     if (ServerRequestCommands.processor.execute(message) == null)
@@ -85,7 +86,7 @@ public class ServerConnectManager {
 
                     System.out.println(message);
                     outputListeners.forEach(it -> it.run(message));
-//                    updateControllerMsg();
+                    OutputManager.print(message);
                 } else {
                     disconnect();
                     break;

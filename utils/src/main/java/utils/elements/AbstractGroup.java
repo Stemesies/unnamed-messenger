@@ -13,7 +13,7 @@ public abstract class AbstractGroup {
     protected int owner;
 
     public int getIdGroup() {
-        return this.id;
+        return (this == null) ? 0 : this.id;
     }
 
     public abstract void includeUser(int id);

@@ -82,6 +82,8 @@ public class  ServerMain {
             System.out.printf("Client %s connected\n", client);
             client.state = ClientStates.AwaitingType;
             client.stateRequest();
+            boolean isHtml = client.type == ClientTypes.GUI;
+            System.out.println(isHtml);
 
             while (client.hasNewMessage()) {
                 var line = client.receiveMessage();
@@ -104,13 +106,12 @@ public class  ServerMain {
                     );
 
                     if (proc.getLastError() != null)
-                        client.sendln(proc.getLastError());
+                        client.sendln(proc.getLastError().getMessage(isHtml));
                     else if (proc.getOutput() != null)
                         client.send(proc.getOutput());
                     continue;
                 }
 
-                boolean isHtml = client.type == ClientTypes.GUI;
                 client.sendMessageToChat(line, isHtml);
             }
 
