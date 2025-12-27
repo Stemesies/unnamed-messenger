@@ -1,6 +1,7 @@
 package client.elements;
 
 import client.elements.cli.ServerRequestCommands;
+import client.elements.cli.ServersideCommands;
 import utils.elements.ClientTypes;
 
 import java.util.ArrayList;
@@ -16,19 +17,17 @@ public class Client {
         return type;
     }
 
-    public static InputManager input = new InputManager();
-
     public static HashMap<String, ArrayList<String>> unread = new HashMap<>(20);
 
     public static void launch(ClientTypes type, String host, int port) {
+        Client.type = type;
         ServerRequestCommands.init();
+        ServersideCommands.init(InputManager.commandProcessor);
+        InputManager.registerClientsideCommands();
 
         ServerConnectManager.host = host;
         ServerConnectManager.port = port;
         ServerConnectManager.connect();
-
-        System.out.println("Я жив!");
-        Client.type = type;
     }
 
     /**

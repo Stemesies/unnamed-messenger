@@ -1,8 +1,10 @@
 package client.elements;
 
 import client.elements.cli.ServersideCommands;
+import utils.Ansi;
 import utils.cli.CommandProcessor;
 import utils.elements.ClientTypes;
+import utils.kt.Apply;
 
 import java.util.Scanner;
 
@@ -11,15 +13,17 @@ import static utils.cli.CommandErrors.PHANTOM_COMMAND;
 
 public class InputManager {
 
-    private final CommandProcessor commandProcessor = new CommandProcessor();
-    private final Scanner in = new Scanner(System.in);
+    private static Apply<String> inputInterceptor = null;
+
+    static final CommandProcessor commandProcessor = new CommandProcessor();
+    private static final Scanner in = new Scanner(System.in);
 
     public InputManager() {
         ServersideCommands.init(commandProcessor);
         registerClientsideCommands();
     }
 
-    public void startInputThread() {
+    public static void startInputThread() {
         new Thread(() -> {
             while (true) {
                 if (!in.hasNextLine()) {
@@ -27,6 +31,7 @@ public class InputManager {
                     return;
                 }
                 var msg = in.nextLine();
+                Ansi.clearLine();
                 processInput(msg);
             }
         }).start();
@@ -37,7 +42,12 @@ public class InputManager {
      * Получение сообщения от клиента.
      */
     @SuppressWarnings("checkstyle:LineLength")
-    public void processInput(String msg) {
+    public static void processInput(String msg) {
+        if (inputInterceptor != null) {
+            inputInterceptor.run(msg);
+            inputInterceptor = null;
+            return;
+        }
         if (msg == null || msg.isEmpty())
             return;
         if (msg.charAt(0) == '/') {
@@ -45,11 +55,11 @@ public class InputManager {
             var procError = commandProcessor.getLastError();
             var procOutput = commandProcessor.getOutput();
             if (procError != null) {
-                if (procError.type == PHANTOM_COMMAND)
+                if (procError.type == PHANTOM_COMMAND) {
                     ServerConnectManager.send(msg);
-                else {
+                } else {
                     boolean isHtml = Client.getType() != ClientTypes.CONSOLE;
-                    OutputManager.print(procError.getMessage(isHtml));
+                    OutputManager.println(procError.getMessage(isHtml));
                 }
             } else if (!procOutput.isEmpty())
                 OutputManager.print(procOutput);
@@ -63,7 +73,7 @@ public class InputManager {
     /**
      * Регистрирует команды для соединения с сервером.
      */
-    private void registerClientsideCommands() {
+    static void registerClientsideCommands() {
 
         commandProcessor.register("exit", (it) -> it
             .executes(ServerConnectManager::exit)
@@ -72,5 +82,9 @@ public class InputManager {
             .require("Already connected.", ServerConnectManager::isDisconnected)
             .executes(ServerConnectManager::connect)
         );
+    }
+
+    public static void interceptNextLine(Apply<String> onLine) {
+        inputInterceptor = onLine;
     }
 }

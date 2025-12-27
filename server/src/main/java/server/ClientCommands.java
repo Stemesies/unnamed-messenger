@@ -78,8 +78,7 @@ public class ClientCommands {
                 ServerData.getRegisteredClients().remove(ctx.data.client);
                 ctx.out.println("Successfully logged out.");
 //                ctx.out.println("Successfully logged out.");
-                boolean isHtml = ctx.data.client.type == ClientTypes.GUI;
-                ctx.out.stylePrint(isHtml, Ansi.Colors.GREEN,
+                ctx.out.stylePrint(Ansi.Colors.GREEN,
                         "Successfully logged out.");
             })
         );
@@ -110,19 +109,15 @@ public class ClientCommands {
                 if (ctx.hasArgument("username")) {
                     var user = User.getUserByUsername(ctx.getString("username"));
                     if (user == null) {
-//                        ctx.out.println(Ansi.Colors.RED.apply("User not found."));
-                        boolean isHtml = ctx.data.client.type == ClientTypes.GUI;
-                        ctx.out.stylePrint(isHtml, Ansi.Colors.RED,
-                                "User not found.");
+                        ctx.out.stylePrint(Ansi.Colors.RED, "User not found.");
                         return;
                     }
 
 //                    ctx.out.print(user.getProfile());
-                    ctx.out.stylePrint(true, Ansi.Colors.BLUE,
-                            user.getProfile(true));
+                    ctx.out.println(user.getProfile(ctx.out.printAsHtml));
                     // TODO: получаем и отображаем профиль человека
                 } else {
-                    ctx.out.println(ctx.data.user.getProfile(true));
+                    ctx.out.println(ctx.data.user.getProfile(ctx.out.printAsHtml));
                 }
             })
         );
@@ -134,9 +129,7 @@ public class ClientCommands {
                 var groupname = ctx.getString("groupname");
                 Group group = Group.getGroupByName(groupname);
                 if (group == null) {
-                    boolean isHtml = ctx.data.client.type == ClientTypes.GUI;
-                    ctx.out.stylePrint(isHtml, Ansi.Colors.RED,
-                            "Group not found.");
+                    ctx.out.stylePrint(Ansi.Colors.RED, "Group not found.");
                     return;
                 }
 
@@ -144,9 +137,7 @@ public class ClientCommands {
                     group.getMembersId(),
                     (it) -> it.equals(ctx.data.client.user.getId())
                 ) == null) {
-                    boolean isHtml = ctx.data.client.type == ClientTypes.GUI;
-                    ctx.out.stylePrint(isHtml, Ansi.Colors.RED,
-                            "You are not a member of that group.");
+                    ctx.out.stylePrintln(Ansi.Colors.RED, "You are not a member of that group.");
                     return;
                 }
                 ctx.data.client.group = group;
@@ -168,9 +159,7 @@ public class ClientCommands {
                     var list = ctx.data.user.getFriendsId();
                     if (list.isEmpty()) {
                         ctx.out.println("No friends.");
-                        boolean isHtml = ctx.data.client.type == ClientTypes.GUI;
-                        ctx.out.stylePrint(isHtml, Ansi.Colors.RED,
-                                "No friends.");
+                        ctx.out.stylePrint(Ansi.Colors.RED, "No friends.");
                     } else
                         list.forEach(ctx.out::println);
                 })
@@ -213,6 +202,38 @@ public class ClientCommands {
     private static void groupsCategoryInit() {
         processor.register("groups", (a) -> a
             .require(requireAuth)
+            .subcommand("list", (b) -> b
+                .subcommand("members", (c) -> c
+                    .require("Open group first", (ctx) -> ctx.data.group != null)
+                    .executes((ctx) -> {
+                        var group = ctx.data.group;
+                        group.loadMemberList();
+                        ctx.out.print(Ansi.Colors.Bright.BLACK);
+                        ctx.out.println("Admins of \"" + group.getName() + "\"");
+                        ctx.out.println("---------------");
+                        ctx.out.print(Ansi.Modes.RESET);
+                        group.admins.forEach(ctx.out::println);
+                        ctx.out.print(Ansi.Colors.Bright.BLACK);
+                        ctx.out.println("Members of \"" + group.getName() + "\"");
+                        ctx.out.println("---------------");
+                        ctx.out.print(Ansi.Modes.RESET);
+                        group.members.forEach(ctx.out::println);
+                        ctx.out.println();
+                    })
+                )
+                .executes((ctx) -> {
+                    var groups = ctx.data.user.getGroups();
+                    if (groups == null) {
+                        ctx.out.println("Something went wrong!");
+                        return;
+                    }
+                    ctx.out.println(" Your groups");
+                    ctx.out.println("---------------");
+                    for (Group group : groups) {
+                        ctx.out.println(group.getName());
+                    }
+                })
+            )
             .subcommand("create", (b) -> b
                 .description("Создает группу #groupname с названием name.")
                 .requireArgument("groupname")
@@ -232,17 +253,29 @@ public class ClientCommands {
                 })
             )
             .subcommand("delete", (b) -> b
+                .require("Open group first", (ctx) -> ctx.data.group != null)
+                .require("You don't have permission to edit this group",
+                    (ctx) -> ctx.data.group.hasAdmin(ctx.data.user)
+                )
                 .executes((ctx) -> {
-                    // TODO: ...
-                    ctx.out.println("Deleted");
+                    var group = ctx.data.group;
+                    ctx.data.client.sendln(
+                        "/ask deletion " + group.getGroupname() + " " + group.getName()
+                    );
                 })
             )
             .subcommand("invite", (b) -> b
+                .require("Open group first", (ctx) -> ctx.data.group != null)
+                .require("You don't have permission to add members",
+                    (ctx) -> ctx.data.group.hasAdmin(ctx.data.user)
+                )
                 .requireArgument("username")
-                .executes((ctx) -> {
-                    ctx.data.group.invite(ctx.out, ctx.getString("username"),
-                            ctx.data.group.getIdGroup());
-                })
+                .executes((ctx) ->
+                    ctx.data.group.invite(
+                        ctx.out,
+                        ctx.getString("username"),
+                        ctx.data.group.getIdGroup()
+                    ))
             )
             .subcommand("accept", (b) -> b
                 .findArgument("groupname")
@@ -259,10 +292,29 @@ public class ClientCommands {
                 )
             )
             .subcommand("kick", (b) -> b
+                .require("Open group first", (ctx) -> ctx.data.group != null)
+                .require("You don't have permission to kick members",
+                    (ctx) -> ctx.data.group.hasAdmin(ctx.data.user)
+                )
                 .requireArgument("username")
+                .executes((ctx) ->
+                    ctx.data.group.kick(
+                        ctx.out,
+                        ctx.getString("username"),
+                        ctx.data.group.getGroupname()
+                    )
+                )
+            )
+            .subcommand("exit", (b) -> b
+                .require("Open group first", (ctx) -> ctx.data.group != null)
+                .require("Chown ownership before exiting.",
+                    (ctx) -> !ctx.data.group.isOwner(ctx.data.user)
+                )
                 .executes((ctx) -> {
-                    // TODO: ...
-                    ctx.out.println("Kicked");
+                    var group = ctx.data.group;
+                    ctx.data.client.sendln(
+                        "/ask exit_group " + group.getGroupname() + " " + group.getName()
+                    );
                 })
             )
             .subcommand("ban", (b) -> b

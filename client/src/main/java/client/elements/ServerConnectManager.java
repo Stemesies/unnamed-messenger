@@ -3,18 +3,9 @@ package client.elements;
 import client.elements.cli.ServerRequestCommands;
 import utils.Ansi;
 
-import utils.kt.Apply;
 import utils.network.SimpleSocket;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class ServerConnectManager {
-    private static final List<Apply<String>> outputListeners = new ArrayList<>();
-
-    public static void addOutPutListener(Apply<String> listener) {
-        outputListeners.add(listener);
-    }
 
     public static String host;
     public static int port;
@@ -42,15 +33,11 @@ public class ServerConnectManager {
 
         if (socket.isClosed()) {
             socket = null;
-            OutputManager.stylePrint("Can't connect to server.", Ansi.Colors.RED);
+            OutputManager.stylePrintln("Can't connect to server.", Ansi.Colors.RED);
         } else {
-            System.out.println("Connected to the server");
             processConnection();
-            outputListeners.forEach(it -> it.run("Connected to the server"));
 //            updateControllerMsg();
-            OutputManager.stylePrint("Connected", Ansi.Colors.GREEN);
-//            OutputManager.getOutputListeners().forEach(it -> it.run(this.message));
-//            System.out.println("Он должен быть в строке: " + HelloController.getMsg());
+            OutputManager.stylePrintln("Connected to the server", Ansi.Colors.GREEN);
         }
     }
 
@@ -64,7 +51,6 @@ public class ServerConnectManager {
 
         socket.close();
         socket = null;
-        OutputManager.stylePrint("Disconnected from the server", Ansi.Colors.RED);
     }
 
     static boolean isDisconnected() {
@@ -79,18 +65,21 @@ public class ServerConnectManager {
             while (isConnected()) {
                 if (socket.hasNewMessage()) {
                     var message = socket.receiveMessage();
-
                     if (message.isEmpty())
                         continue;
 
                     // Сервер прислал запрос. Отвечаем и ничего не выводим пользователю.
-                    if (ServerRequestCommands.processor.execute(message) == null)
+                    if (ServerRequestCommands.processor.execute(message) == null) {
                         continue;
+                    }
 
-                    System.out.println(message);
-                    outputListeners.forEach(it -> it.run(message));
-                    OutputManager.print(message);
+//                    System.out.println("FUUUUCK");
+//                    System.out.println(message);
+//                    System.out.println("-------");
+
+                    OutputManager.println(message);
                 } else {
+                    OutputManager.stylePrintln("Disconnected from the server", Ansi.Colors.RED);
                     disconnect();
                     break;
                 }

@@ -70,6 +70,52 @@ public class Group extends AbstractGroup {
         }
     }
 
+    public static void deleteGroup(StringPrintWriter out, String groupname) {
+        String sql = "DELETE FROM groups WHERE id=?; DELETE FROM group_members WHERE group_id=?";
+
+        var group = getGroupByName(groupname);
+        if (group == null) {
+            out.println("Group not exists or something went wrong.");
+            return;
+        }
+        var members = group.getMembersId();
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, group.id);
+            stmt.setInt(2, group.id);
+            int deletedRows = stmt.executeUpdate();
+
+            if (deletedRows > 0) {
+                out.println("Deleted successfully");
+            } else {
+                System.out.println("Nothing to delete.");
+            }
+
+            if (members == null)
+                return;
+
+
+            for (int i : members) {
+                var kickedClient = ServerData.findClient(i);
+                if (kickedClient == null)
+                    continue;
+
+                if (kickedClient.group != null && kickedClient.group.groupname.equals(groupname))
+                    kickedClient.sendln(
+                        "Group \"" + kickedClient.group.name + "\" was deleted."
+                    );
+                kickedClient.group = null;
+            }
+
+
+        } catch (SQLException e) {
+            System.err.println("Error deleting group: " + e.getMessage());
+            out.println("Something went wrong: " + e.getMessage());
+        }
+    }
+
     public static Group register(
         StringPrintWriter out, User owner, String groupname, String name
     ) {
@@ -143,6 +189,46 @@ public class Group extends AbstractGroup {
         }
     }
 
+    public static boolean removeMember(StringPrintWriter out, String groupname, String username) {
+
+        String sql = "DELETE FROM group_members WHERE group_id = ? AND user_id = ?";
+
+        var group = getGroupByName(groupname);
+        int id = User.getUserIdByUsername(username);
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, group.id);
+            stmt.setInt(2, id);
+            int deletedRows = stmt.executeUpdate();
+
+            if (deletedRows == 0) {
+                out.println(username + " was not a member.");
+                return false;
+            } else {
+                System.out.println("Deleted " + username + " from group " + groupname);
+            }
+
+            var kickedClient = ServerData.findClient(username);
+            if (kickedClient == null)
+                return true;
+
+            if (kickedClient.group != null && kickedClient.group.groupname.equals(groupname))
+                kickedClient.sendln(
+                    "You were kicked from group \"" + kickedClient.group.name + "\""
+                );
+            kickedClient.group = null;
+            return true;
+
+
+        } catch (SQLException e) {
+            System.err.println("Error removing member: " + e.getMessage());
+            out.println("Something went wrong: " + e.getMessage());
+            return false;
+        }
+    }
+
     public List<Integer> getMembersId() {
         List<Integer> members = new ArrayList<>();
         String sql = "SELECT * FROM group_members WHERE group_id = ?";
@@ -171,6 +257,17 @@ public class Group extends AbstractGroup {
         }
         addMember(groupId, username, false);
         out.println(username + " invited to " + name);
+    }
+
+    public void kick(StringPrintWriter out, String username, String groupname) {
+        if (!User.userExists(username)) {
+            out.println(Ansi.Colors.RED.apply("User not found."));
+            return;
+        }
+        if (removeMember(out, groupname, username)) {
+            out.println(username + " was kicked from " + name);
+        }
+
     }
 
     public void addMessage(Message message) {
@@ -218,5 +315,80 @@ public class Group extends AbstractGroup {
         }
 
         return messages;
+    }
+
+    public List<Integer> getAdminIds() {
+        List<Integer> admins = new ArrayList<>();
+        String sql = "SELECT * FROM group_members WHERE group_id = ? AND is_admin = true";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, this.id);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                admins.add(rs.getInt("user_id"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error getting Admins: " + e.getMessage());
+        }
+
+        return admins;
+    }
+
+    public boolean hasAdmin(User user) {
+        return getAdminIds().contains(user.getId());
+    }
+
+    public boolean isOwner(User user) {
+        String sql = "SELECT * FROM groups WHERE groupname = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, groupname);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                if (rs.getInt("owner_id") == user.getId())
+                    return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+        return false;
+    }
+
+    public void loadMemberList() {
+        this.members = new ArrayList<>();
+        this.admins = new ArrayList<>();
+
+        String sql = "SELECT * FROM group_members gm JOIN users u "
+            + "ON gm.user_id=u.id WHERE group_id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                var user = new User(
+                    rs.getString("username"),
+                    ""
+                );
+                user.name = rs.getString("name");
+                if (rs.getBoolean("is_admin"))
+                    admins.add(user);
+                else
+                    members.add(user);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
     }
 }

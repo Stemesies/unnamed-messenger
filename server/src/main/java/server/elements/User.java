@@ -197,8 +197,7 @@ public class User extends AbstractUser {
                     // Обновляем время последнего входа
                     updateLastOnline(user.name);
 
-//                    out.printlnf("Logged in as %s.", user.name);
-                    out.stylePrintLnf(true, Ansi.Colors.GREEN, "Logged in as %s.", user.name);
+                    out.stylePrintlnf(Ansi.Colors.GREEN, "Logged in as %s.", user.name);
                     return user;
                 } else {
                     out.println(Ansi.Colors.RED.apply("Invalid password."));
@@ -377,5 +376,31 @@ public class User extends AbstractUser {
 
     public void dismissFriendRequest(String username) {
         // TODO: Ну, вы знаете.
+    }
+
+    public List<Group> getGroups() {
+        var list = new ArrayList<Group>();
+        String sql = "SELECT * FROM group_members gm JOIN "
+            + "groups g ON gm.group_id=g.id WHERE user_id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                list.add(new Group(
+                    rs.getInt("owner_id"),
+                    rs.getString("groupname"),
+                    rs.getString("name")
+                ));
+            }
+            return list;
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+
+        return null;
     }
 }

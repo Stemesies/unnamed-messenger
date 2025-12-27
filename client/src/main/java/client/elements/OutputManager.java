@@ -27,11 +27,19 @@ public class OutputManager {
         }
     }
 
+    public static void println(String message) {
+        print(message + '\n');
+    }
+
     public static void stylePrint(String message, Ansi style) {
         if (Client.getType() == ClientTypes.CONSOLE) {
             print(Ansi.applyStyle(message, style));
         } else {
             print(Ansi.applyHtml(message, style));
         }
+    }
+
+    public static void stylePrintln(String message, Ansi style) {
+        stylePrint(message + '\n', style);
     }
 }

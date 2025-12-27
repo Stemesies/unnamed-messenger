@@ -3,7 +3,6 @@ package server.elements;
 import utils.elements.ClientTypes;
 import utils.network.SimpleSocket;
 import utils.Ansi;
-import utils.extensions.CollectionExt;
 
 /**
  * Репрезентация клиента со стороны сервера.
@@ -23,7 +22,6 @@ public class Client {
     public ClientTypes type = ClientTypes.GUI;
     public ClientStates state = ClientStates.Fine;
 
-    @Deprecated
     public Group group = null;
 
     private final SimpleSocket socket;
@@ -106,16 +104,25 @@ public class Client {
         group.addMessage(message);
         for (var u : group.getMembersId()) {
 
-            var client = CollectionExt.findBy(
-                ServerData.getRegisteredClients(),
-                (it) -> it.user.getId() == u
-            );
+            var client = ServerData.findClient(u);
 
             if (client == null)
                 continue;
 
             if (client != this) {
-                client.sendln(strMessage);
+                var partMsg = strMessage;
+                var last = strMessage;
+                for (int i = 0; !last.isEmpty(); i += 30) {
+                    if (last.length() <= 30) {
+                        client.sendln(last);
+                        break;
+                    } else {
+                        partMsg = last.substring(0, 31);
+                        last = last.substring(31);
+
+                        client.sendln(partMsg);
+                    }
+                }
             } else {
                 if (strMessage.length() <= 30)
                     client.styledSendln(Message.getOffset(strMessage), Ansi.Colors.YELLOW,
@@ -124,16 +131,16 @@ public class Client {
                     var partMsg = strMessage;
                     var last = strMessage;
                     for (int i = 0; !last.isEmpty(); i += 30) {
-                        if (last.length() < 30) {
-                            client.styledSendln(Message.getOffset(last), Ansi.Colors.YELLOW,
+                        if (last.length() <= 30) {
+                            client.styledSendln(Message.getOffset(last) + last, Ansi.Colors.YELLOW,
                                     isHtml);
                             break;
                         } else {
                             partMsg = last.substring(0, 31);
-                            last = last.substring(31, last.length());
+                            last = last.substring(31);
 
-                            client.styledSendln(Message.getOffset(partMsg), Ansi.Colors.YELLOW,
-                                    isHtml);
+                            client.styledSendln(Message.getOffset(partMsg)
+                                    + partMsg, Ansi.Colors.YELLOW, isHtml);
                         }
                     }
                 }

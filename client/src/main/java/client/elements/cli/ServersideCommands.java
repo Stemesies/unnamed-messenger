@@ -98,6 +98,12 @@ public class ServersideCommands {
         processor.register("groups", (a) -> a
             .isPhantom()
             .description("Управление группами")
+            .subcommand("list", (b) -> b
+                .description("Вывод списка всех групп, в которых вы состоите")
+                .subcommand("members", (c) -> c
+                    .description("Вывод списка всех участников текущей группы")
+                )
+            )
             .subcommand("create", (b) -> b
                 .description("Создает группу #groupname с названием name.")
                 .requireArgument("groupname")
@@ -127,6 +133,9 @@ public class ServersideCommands {
             .subcommand("kick", (b) -> b
                 .description("Исключает @username из группы.")
                 .requireArgument("username")
+            )
+            .subcommand("exit", (b) -> b
+                .description("Позволяет выйти из группы")
             )
             .subcommand("ban", (b) -> b
                 .description("Банит @username из группы.")

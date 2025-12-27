@@ -19,6 +19,9 @@ package utils;
  * </code></pre>
  */
 public class StringPrintWriter {
+
+    public boolean printAsHtml = false;
+
     StringBuilder str = new StringBuilder();
 
     @Override
@@ -34,15 +37,15 @@ public class StringPrintWriter {
         }
     }
 
-    public void stylePrint(boolean isHtml, Ansi style, Object... obj) {
-        if (isHtml) {
-            for (Object o : obj) {
-                str.append(Ansi.applyHtml(o, style));
-            }
+    public void stylePrint(Ansi style, Object... obj) {
+        if (printAsHtml) {
+            str.append(style.startHtml());
+            print(obj);
+            str.append(style.closeHtml());
         } else {
-            for (Object o : obj) {
-                str.append(Ansi.applyStyle(o, style));
-            }
+            str.append(style.start());
+            print(obj);
+            str.append(style.end());
         }
     }
 
@@ -52,6 +55,11 @@ public class StringPrintWriter {
     }
     
     public void println() {
+        str.append('\n');
+    }
+
+    public void stylePrintln(Ansi style, Object... obj) {
+        stylePrint(style, obj);
         str.append('\n');
     }
     
@@ -64,16 +72,16 @@ public class StringPrintWriter {
         str.append('\n');
     }
 
-    public void stylePrintLnf(boolean isHtml, Ansi style, String format, Object... args) {
-        if (isHtml) {
-            for (Object arg : args) {
-                printlnf(Ansi.applyHtml(format, style), Ansi.applyHtml(arg, style));
-            }
-        } else {
-            for (Object arg : args) {
-                printlnf(format, Ansi.applyStyle(arg, style));
-            }
-        }
+    public void stylePrintf(Ansi style, String format, Object... args) {
+        if (printAsHtml)
+            str.append(Ansi.applyHtml(format.formatted(args), style));
+        else
+            str.append(Ansi.applyStyle(format.formatted(args), style));
+    }
+
+    public void stylePrintlnf(Ansi style, String format, Object... args) {
+        stylePrintf(style, format, args);
+        str.append('\n');
     }
 
     public void clear() {

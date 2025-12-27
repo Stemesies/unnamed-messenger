@@ -46,6 +46,6 @@ public class Message {
      * @param message - сообщение в чат
      */
     public static String getOffset(String message) {
-        return " ".repeat(Math.max(0, (110 - message.length()))) + message;
+        return " ".repeat(Math.max(0, (110 - message.length())));
     }
 }

@@ -78,6 +78,10 @@ public class CustomCommandProcessor<T> {
         return output.toString();
     }
 
+    public StringPrintWriter getRawOutput() {
+        return output;
+    }
+
     // ---------------------------------
 
     @Deprecated(forRemoval = true)
@@ -262,4 +266,5 @@ public class CustomCommandProcessor<T> {
         }
         out.println();
     }
+
 }

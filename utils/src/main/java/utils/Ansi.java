@@ -65,6 +65,22 @@ public class Ansi {
         return "\u001B[" + style + "m";
     }
 
+    public String start() {
+        return this.toString();
+    }
+
+    public String end() {
+        return Modes.RESET.toString();
+    }
+
+    public String startHtml() {
+        return openSpan;
+    }
+
+    public String closeHtml() {
+        return closeSpan;
+    }
+
     /**
      * Стилизует указанный текст, по завершении которого стиль сбрасывается.
      */

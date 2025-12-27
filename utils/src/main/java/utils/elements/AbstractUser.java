@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public abstract class AbstractUser {
     protected int id;
     protected String userName;
-    protected String name;
+    public String name;
     protected String password;
     protected ArrayList<Integer> friends; // массив id'шников друзей
 
@@ -49,4 +49,8 @@ public abstract class AbstractUser {
 
     public abstract void addFriend(int id);
 
+    @Override
+    public String toString() {
+        return this.name + " · @" + this.userName;
+    }
 }

@@ -82,24 +82,28 @@ public class  ServerMain {
             System.out.printf("Client %s connected\n", client);
             client.state = ClientStates.AwaitingType;
             client.stateRequest();
-            boolean isHtml = client.type == ClientTypes.GUI;
-            System.out.println(isHtml);
 
             while (client.hasNewMessage()) {
                 var line = client.receiveMessage();
 
-                if (client.state != ClientStates.Fine) {
-                    ClientResponseCommands.processor.execute(
-                        line,
-                        new ClientResponseCommands.ClientContextData(client)
-                    );
-                    if (ClientResponseCommands.processor.getLastError() != null)
-                        client.stateRequest();
+                ClientResponseCommands.processor.execute(
+                    line,
+                    new ClientResponseCommands.ClientContextData(client)
+                );
+                if (ClientResponseCommands.processor.getLastError() != null) {
+                    client.stateRequest();
+                } else {
+                    var out = ClientResponseCommands.processor.getOutput();
+                    if (!out.isEmpty())
+                        client.sendln(out);
                     continue;
                 }
 
+                boolean isHtml = client.type == ClientTypes.GUI;
+
                 if (line.charAt(0) == '/') {
                     var proc = ClientCommands.processor;
+                    proc.getRawOutput().printAsHtml = client.type == ClientTypes.GUI;
                     proc.execute(
                         line,
                         new ClientCommands.ClientContextData(client, client.user, client.group)

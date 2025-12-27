@@ -1,15 +1,14 @@
 package utils.elements;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public abstract class AbstractGroup {
     protected int id;
     protected String groupname;
     protected String name;
     protected GroupTypes type;
-    protected ArrayList<Integer> members = new ArrayList<>();
-    protected ArrayList<Integer> admins = new ArrayList<>();
+    public ArrayList<AbstractUser> members = new ArrayList<>();
+    public ArrayList<AbstractUser> admins = new ArrayList<>();
     protected int owner;
 
     public int getIdGroup() {
@@ -24,7 +23,7 @@ public abstract class AbstractGroup {
         return this.groupname;
     }
 
-    public List<Integer> getMembers() {
-        return members;
+    public String getName() {
+        return this.name;
     }
 }
