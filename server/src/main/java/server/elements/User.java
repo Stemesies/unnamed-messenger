@@ -197,8 +197,7 @@ public class User extends AbstractUser {
                     // Обновляем время последнего входа
                     updateLastOnline(user.name);
 
-//                    out.printlnf("Logged in as %s.", user.name);
-                    out.stylePrintLnf(Ansi.Colors.GREEN, "Logged in as %s.", user.name);
+                    out.stylePrintlnf(Ansi.Colors.GREEN, "Logged in as %s.", user.name);
                     return user;
                 } else {
                     out.println(Ansi.Colors.RED.apply("Invalid password."));

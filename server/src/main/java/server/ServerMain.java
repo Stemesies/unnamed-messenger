@@ -82,8 +82,6 @@ public class  ServerMain {
             System.out.printf("Client %s connected\n", client);
             client.state = ClientStates.AwaitingType;
             client.stateRequest();
-            boolean isHtml = client.type == ClientTypes.GUI;
-            System.out.println(isHtml);
 
             while (client.hasNewMessage()) {
                 var line = client.receiveMessage();
@@ -101,7 +99,7 @@ public class  ServerMain {
                     continue;
                 }
 
-
+                boolean isHtml = client.type == ClientTypes.GUI;
 
                 if (line.charAt(0) == '/') {
                     var proc = ClientCommands.processor;

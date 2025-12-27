@@ -24,12 +24,11 @@ public class Client {
         ServerRequestCommands.init();
         ServersideCommands.init(InputManager.commandProcessor);
         InputManager.registerClientsideCommands();
+
         ServerConnectManager.host = "127.0.0.1";
         ServerConnectManager.port = 8080;
-        ServerConnectManager.connect();
 
-        System.out.println("Я жив!");
-        Client.type = type;
+        ServerConnectManager.connect();
     }
 
     /**

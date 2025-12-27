@@ -55,11 +55,11 @@ public class InputManager {
             var procError = commandProcessor.getLastError();
             var procOutput = commandProcessor.getOutput();
             if (procError != null) {
-                if (procError.type == PHANTOM_COMMAND)
+                if (procError.type == PHANTOM_COMMAND) {
                     ServerConnectManager.send(msg);
-                else {
+                } else {
                     boolean isHtml = Client.getType() != ClientTypes.CONSOLE;
-                    OutputManager.print(procError.getMessage(isHtml));
+                    OutputManager.println(procError.getMessage(isHtml));
                 }
             } else if (!procOutput.isEmpty())
                 OutputManager.print(procOutput);

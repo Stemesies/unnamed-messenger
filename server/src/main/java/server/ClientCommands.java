@@ -137,7 +137,7 @@ public class ClientCommands {
                     group.getMembersId(),
                     (it) -> it.equals(ctx.data.client.user.getId())
                 ) == null) {
-                    ctx.out.stylePrint(Ansi.Colors.RED, "You are not a member of that group.");
+                    ctx.out.stylePrintln(Ansi.Colors.RED, "You are not a member of that group.");
                     return;
                 }
                 ctx.data.client.group = group;
