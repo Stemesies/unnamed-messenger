@@ -88,7 +88,7 @@ public class ClientController implements Initializable {
                                 + "<pre>" + msgProperty().getValue() + "</pre>"
                         + "</body></html>");
                 var height = (int) receivedMsg.getEngine()
-                        .executeScript("document.body.scrollHeight; document.body.scrollWidth");
+                        .executeScript("document.body.scrollHeight");
                 receivedMsg.setPrefHeight(height);
             }
         });
@@ -155,5 +155,15 @@ public class ClientController implements Initializable {
     @FXML
     public void onLogIn() {
         setInput("/login " + tf.getText());
+    }
+
+    @FXML
+    private Button clearBtn;
+
+    @FXML
+    public void clearView() {
+        receivedMsg.getEngine().loadContent("");
+        output.clear();
+        setMsg("");
     }
 }

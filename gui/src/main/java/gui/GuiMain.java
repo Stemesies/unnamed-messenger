@@ -10,7 +10,7 @@ public class GuiMain {
 
     public static void main(String[] args) {
         CompletableFuture.supplyAsync(() -> {
-            Client.launch(ClientTypes.GUI);
+            Client.launch(ClientTypes.GUI, args[1], Integer.parseInt(args[2]));
             return null;
         });
         Application.launch(ClientApplication.class);

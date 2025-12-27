@@ -20,11 +20,6 @@
         <WebView fx:id="receivedMsg" fontScale="1.6" prefHeight="450.0" prefWidth="1493.0" stylesheets="@styles.css" />
     </ScrollPane>
 
-<!--    <TextArea fx:id="tar" layoutX="21.0" layoutY="97.0" prefHeight="450.0" prefWidth="574.0" styleClass="text-area" stylesheets="@styles.css">-->
-<!--        <font>-->
-<!--            <Font name="System Bold Italic" size="20.0" />-->
-<!--        </font>-->
-<!--    </TextArea>-->
     <TextField fx:id="tf" layoutX="21.0" layoutY="297.0" prefHeight="19.0" prefWidth="574.0" stylesheets="@styles.css">
         <font>
             <Font name="System Bold" size="28.0" />
@@ -106,4 +101,12 @@
         <String fx:value="title" />
       <String fx:value="button" />
     </styleClass>
+    <Button fx:id="clearBtn" layoutX="21.0" layoutY="373.0" onAction="#clearView" text="Очистить">
+        <cursor>
+            <Cursor fx:constant="OPEN_HAND" />
+        </cursor>
+        <HBox.margin>
+            <Insets />
+        </HBox.margin>
+    </Button>
 </VBox>

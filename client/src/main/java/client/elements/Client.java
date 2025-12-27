@@ -20,11 +20,11 @@ public class Client {
 
     public static HashMap<String, ArrayList<String>> unread = new HashMap<>(20);
 
-    public static void launch(ClientTypes type) {
+    public static void launch(ClientTypes type, String host, int port) {
         ServerRequestCommands.init();
 
-        ServerConnectManager.host = "127.0.0.1";
-        ServerConnectManager.port = 8080;
+        ServerConnectManager.host = host;
+        ServerConnectManager.port = port;
         ServerConnectManager.connect();
 
         System.out.println("Я жив!");

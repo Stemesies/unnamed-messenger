@@ -8,7 +8,7 @@ public class ClientMain {
 
     public static void main(String[] args) {
         ServerCommands.initGeneral();
-        Client.launch(ClientTypes.CONSOLE);
+        Client.launch(ClientTypes.CONSOLE, args[1], Integer.parseInt(args[2]));
         Client.input.startInputThread();
     }
 }
